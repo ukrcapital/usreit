@@ -132,8 +132,7 @@ export default function HomePage() {
                   <span className="ml-1.5" aria-hidden>→</span>
                 </Link>
               </div>
-            </div>
-            <div ref={statsRef} className="relative z-[13] mt-16 hero:mt-[140px] flex flex-col hero:flex-row gap-8 hero:gap-[150px] pl-8 pr-8 hero:pl-0 hero:pr-0">
+            <div ref={statsRef} className={`relative z-[13] mt-16 hero:mt-[140px] flex flex-col hero:flex-row gap-8 hero:gap-[150px] ${MOB_TEXT_INDENT}`}>
               <div className="max-w-xs">
                 <div className="w-[32px] h-[32px] flex items-center justify-center text-[#226e91]" aria-hidden>
                   <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
@@ -141,7 +140,7 @@ export default function HomePage() {
                     <circle cx="9" cy="7" r="4" />
                     <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
                   </svg>
-                </div>
+            </div>
                 <span ref={num1Ref} className="block text-[32px] hero:text-[44px] font-light text-[#10171f] tracking-[-1px] mt-2" aria-live="polite">0</span>
                 <span className="block text-[13px] text-[#10171f] mt-2">активних рахунків в Inzhur</span>
               </div>
@@ -172,6 +171,7 @@ export default function HomePage() {
                 </div>
                 <span className="block text-[11px] font-light text-[#959696] mt-2">починаючи з {dateRange.start} по {dateRange.end}</span>
               </div>
+            </div>
             </div>
           </div>
         </section>

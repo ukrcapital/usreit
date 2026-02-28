@@ -7,21 +7,23 @@ export default function Footer() {
       <div className="w-full max-w-[1536px] px-4 md:px-8 py-10 md:py-16">
         {/* Мобільна версія: одна колонка з розподілювачами */}
         <div className="flex flex-col md:hidden">
-          {/* 1. Лого + слоган */}
-          <div className="flex gap-4 items-start">
+          {/* 1. Лого зліва, блок слогана по центру залишкового місця (текст всередині — по лівому краю) */}
+          <div className="flex items-center gap-4">
             <Link to="/" className="flex items-center gap-2 shrink-0">
               <div className="w-10 h-10 rounded-[12px] border-2 border-white/40 flex items-center justify-center overflow-hidden bg-white">
                 <span className="text-[#10171f] text-sm font-medium leading-none select-none" aria-hidden>꩜</span>
               </div>
               <span className="font-sans text-white text-[15px] font-semibold tracking-tight">INZHYR</span>
             </Link>
-            <div className="text-[17px] md:text-[20px] font-normal leading-[1.35] text-white pt-1">
-              <span className="block">Прибутково, пасивно, прозоро.</span>
-              <span className="block">А що ще треба? :)</span>
+            <div className="flex-1 flex justify-center min-w-0">
+              <div className="text-[17px] md:text-[20px] font-normal leading-[1.35] text-white text-left">
+                <span className="block">Прибутково, пасивно, прозоро.</span>
+                <span className="block">А що ще треба? :)</span>
+              </div>
             </div>
           </div>
 
-          <div className="py-8" />
+          <div className="py-4" />
 
           {/* 2. Ми в соцмережах */}
           <span className="block text-[14px] font-medium text-white">Ми в соцмережах</span>
@@ -40,13 +42,13 @@ export default function Footer() {
             </a>
           </div>
 
-          <div className="py-8" />
+          <div className="py-4" />
 
           {/* 3. Адреса та телефон */}
           <span className="block text-[12px] text-white/90">вул.Жилянська, буд. 48,50А (БЦ «Прайм»), 7 поверх</span>
           <a href="tel:+380442907685" className="block text-[12px] text-white/90 mt-2 hover:underline">+38 044 290 76 85</a>
 
-          <div className="py-8" />
+          <div className="py-4" />
 
           {/* 4. Копірайт та ліцензія */}
           <p className="text-[12px] text-white/80 leading-relaxed">

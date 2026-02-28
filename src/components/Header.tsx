@@ -88,11 +88,11 @@ export default function Header() {
         >
           {/* Верх: лого зліва (у 2 рази більший), кнопка закриття справа */}
           <div className="flex items-center justify-between p-10 pb-2 pt-4 shrink-0">
-            <a href="/" onClick={() => setIsMenuOpen(false)} className="shrink-0">
+            <Link to="/" onClick={() => setIsMenuOpen(false)} className="shrink-0">
               <div className="w-[72px] h-[72px] rounded-[14px] border-2 border-black flex items-center justify-center overflow-hidden bg-white">
                 <span className="text-[#10171f] text-[32px] font-medium leading-none select-none" aria-hidden>꩜</span>
               </div>
-            </a>
+            </Link>
             <button
               type="button"
               onClick={() => setIsMenuOpen(false)}
@@ -197,30 +197,30 @@ export default function Header() {
       </div>
       )}
 
-      {/* Мобільний хедер: без тіні й обводки на початку сторінки, при прокрутці — sticky з тінню й обводкою */}
+      {/* Мобільний хедер */}
       <header className="header:hidden fixed top-4 left-0 right-0 z-[999] flex justify-center px-4">
         <div
           className={`w-full max-w-[1280px] h-[72px] bg-[#e2ecf1] rounded-[24px] flex items-center justify-between pl-8 pr-4 hero:pl-6 hero:pr-6 md:px-6 transition-all duration-200 ${
             scrolled ? "shadow-md border border-[rgba(0,0,0,0.08)]" : "shadow-none border border-transparent"
           }`}
         >
-          <a href="/" className="flex items-center gap-2 shrink-0">
-            <div className="hidden xs:flex w-10 h-10 rounded-[12px] border-2 border-black items-center justify-center overflow-hidden bg-white">
+          <Link to="/" className="flex items-center gap-2 shrink-0">
+            <div className="flex w-10 h-10 rounded-[12px] border-2 border-black items-center justify-center overflow-hidden bg-white shrink-0">
               <span className="text-[#10171f] text-sm font-medium leading-none select-none" aria-hidden>꩜</span>
             </div>
             <span className="font-sans text-[#10171f] text-[15px] font-semibold tracking-tight">INZHYR</span>
-          </a>
+          </Link>
           <div className="flex items-center gap-2 shrink-0">
             <Link
               to={isUsSite ? "/" : "/us"}
-              className="hidden xs:flex w-10 h-10 rounded-[12px] items-center justify-center border border-[#10171f] text-[#10171f] hover:bg-[#10171f] hover:text-white transition-colors text-[13px] font-semibold"
+              className="flex max-[669px]:hidden w-10 h-10 rounded-[12px] items-center justify-center border border-[#10171f] text-[#10171f] hover:bg-[#10171f] hover:text-white transition-colors text-[13px] font-semibold"
               aria-label={isUsSite ? "Українська" : "English"}
             >
               {isUsSite ? "UA" : "US"}
             </Link>
             <Link
               to={isLoggedIn ? "/dashboard" : "/account"}
-              className="hidden xs:flex w-10 h-10 rounded-[12px] items-center justify-center border border-[#10171f] text-[#10171f] hover:bg-[#10171f] hover:text-white transition-colors"
+              className="flex w-10 h-10 rounded-[12px] items-center justify-center border border-[#10171f] text-[#10171f] hover:bg-[#10171f] hover:text-white transition-colors shrink-0"
               aria-label={isLoggedIn ? "Кабінет" : "Вхід"}
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -252,8 +252,8 @@ export default function Header() {
           <div className="w-full h-full px-6 flex items-center justify-between">
             {/* Зона зліва: лого по центру між лівим краєм контенту та «Довідник»; при scroll 0 — квадрат 2× більший */}
             <div className="w-[220px] min-w-[220px] flex justify-center items-center shrink-0 mr-6">
-              <a
-                href="/"
+              <Link
+                to="/"
                 className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity duration-300"
               >
                 <span
@@ -264,7 +264,7 @@ export default function Header() {
                   <span className={`text-[#10171f] font-semibold leading-none select-none transition-all duration-300 ${scrolled ? "text-base" : "text-2xl"}`} aria-hidden>꩜</span>
                 </span>
                 <span className={`font-sans text-[#10171f] font-semibold tracking-tight transition-all duration-300 ${scrolled ? "text-[15px]" : "text-lg"}`}>INZHYR</span>
-              </a>
+              </Link>
             </div>
 
             {/* Навігація: посилання завжди видимі на десктопі; при наведенні — підклада #D5DDE7 */}

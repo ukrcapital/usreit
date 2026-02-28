@@ -10,7 +10,6 @@ export default {
       screens: {
         header: '1201px',
         hero: '764px',
-        xs: '670px',
       },
       fontFamily: {
         sans: ['"e-ukraine"', 'sans-serif'],
