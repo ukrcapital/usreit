@@ -36,12 +36,18 @@ export default function Layout() {
       </a>
       {isDashboard ? <DashboardHeader /> : <Header />}
 
-      {/* Відступ під хедер: однаковий для обох хедерів */}
-      <main id="main-content" className="flex-grow pt-24 header:pt-[100px] w-full flex justify-center" tabIndex={-1}>
+      {/* Відступ під хедер: dashboard та account — однаковий зазор на mob (112px); desktop — окремо */}
+      <main
+        id="main-content"
+        className={`flex-grow w-full flex justify-center ${
+          isDashboard ? "pt-[112px] md:pt-[120px]" : isAccount ? "pt-[112px] header:pt-[65px]" : "pt-[62px] header:pt-[65px]"
+        }`}
+        tabIndex={-1}
+      >
         <Outlet />
       </main>
 
-      <Footer />
+      {!isDashboardOrAccount && <Footer />}
     </div>
   );
 }

@@ -14,6 +14,8 @@ const MOBILE_NAV_LINKS: { label: string; path?: string }[] = [
   { label: "Девелопер Inzhur BUD", path: "/developer" },
 ];
 
+const HEADER_BREAKPOINT = 1200;
+
 export default function Header() {
   const { isLoggedIn } = useAuth();
   const location = useLocation();
@@ -21,9 +23,22 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
+  const [isMobileView, setIsMobileView] = useState(() => typeof window !== "undefined" && window.innerWidth <= HEADER_BREAKPOINT);
   const isHome = location.pathname === "/";
   const isUsSite = location.pathname.startsWith("/us");
   const isAccount = location.pathname === "/account" || location.pathname === "/login";
+
+  useEffect(() => {
+    const mql = window.matchMedia(`(max-width: ${HEADER_BREAKPOINT}px)`);
+    const handler = () => {
+      const mobile = mql.matches;
+      setIsMobileView(mobile);
+      if (!mobile) setIsMenuOpen(false);
+    };
+    handler();
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, []);
 
   const DESKTOP_MORE_LINKS: { label: string; path: string }[] = [
     { label: "Реферальна програма", path: "/referral" },
@@ -54,7 +69,8 @@ export default function Header() {
 
   return (
     <>
-      {/* Слайд-меню: мобільна версія завжди з бургером; десктоп — тільки коли залогінений. Один і той самий контент. */}
+      {/* Слайд-меню: тільки на мобільному; на десктопі не рендеримо, щоб клік по бургеру нічого не робив */}
+      {isMobileView && (
       <div
         className={`fixed inset-0 z-[1001] transition-[visibility,opacity] duration-300 ${
           isMenuOpen ? "visible opacity-100" : "invisible opacity-0 pointer-events-none"
@@ -73,7 +89,7 @@ export default function Header() {
           {/* Верх: лого зліва (у 2 рази більший), кнопка закриття справа */}
           <div className="flex items-center justify-between p-10 pb-2 pt-4 shrink-0">
             <a href="/" onClick={() => setIsMenuOpen(false)} className="shrink-0">
-              <div className="w-[72px] h-[72px] rounded-[14px] border-2 border-[#10171f] flex items-center justify-center overflow-hidden bg-white">
+              <div className="w-[72px] h-[72px] rounded-[14px] border-2 border-black flex items-center justify-center overflow-hidden bg-white">
                 <span className="text-[#10171f] text-[32px] font-medium leading-none select-none" aria-hidden>꩜</span>
               </div>
             </a>
@@ -179,14 +195,20 @@ export default function Header() {
           </div>
         </div>
       </div>
+      )}
 
-      {/* Мобільний хедер: лого + іконка акаунта + бургер */}
+      {/* Мобільний хедер: без тіні й обводки на початку сторінки, при прокрутці — sticky з тінню й обводкою */}
       <header className="header:hidden fixed top-4 left-0 right-0 z-[999] flex justify-center px-4">
-        <div className="w-full max-w-[1280px] h-[72px] bg-[#e2ecf1] rounded-[24px] flex items-center justify-between px-4 md:px-6 shadow-md">
-          <a href="/" className="flex items-center shrink-0">
-            <div className="w-10 h-10 rounded-[12px] border-2 border-[#10171f] flex items-center justify-center overflow-hidden bg-white">
+        <div
+          className={`w-full max-w-[1280px] h-[72px] bg-[#e2ecf1] rounded-[24px] flex items-center justify-between pl-8 pr-4 hero:pl-6 hero:pr-6 md:px-6 transition-all duration-200 ${
+            scrolled ? "shadow-md border border-[rgba(0,0,0,0.08)]" : "shadow-none border border-transparent"
+          }`}
+        >
+          <a href="/" className="flex items-center gap-2 shrink-0">
+            <div className="w-10 h-10 rounded-[12px] border-2 border-black flex items-center justify-center overflow-hidden bg-white">
               <span className="text-[#10171f] text-sm font-medium leading-none select-none" aria-hidden>꩜</span>
             </div>
+            <span className="font-sans text-[#10171f] text-[15px] font-semibold tracking-tight">INZHYR</span>
           </a>
           <div className="flex items-center gap-2 shrink-0">
             <Link
@@ -207,7 +229,7 @@ export default function Header() {
             </Link>
             <button
               type="button"
-              onClick={() => setIsMenuOpen(true)}
+              onClick={() => isMobileView && setIsMenuOpen(true)}
               className="w-10 h-10 rounded-[12px] flex items-center justify-center bg-[#10171f] text-white hover:opacity-90 shrink-0"
               aria-label="Меню"
             >
@@ -222,16 +244,28 @@ export default function Header() {
       {/* Десктопний хедер (орієнтир з оригіналу): висота 64px, padding 24px, лого 60×40 pill, нав gap 32px, кнопки 40px, Telegram #D4DDE7, Кабінет white border #A0B0C4 */}
       <header className="hidden header:flex fixed top-4 left-0 w-full justify-center z-[999]">
         <div
-          className={`w-full max-w-[1584px] mx-4 h-[64px] relative transition-all duration-300 ${
+          className={`w-full max-w-[1584px] mx-4 min-h-[64px] h-[64px] relative transition-all duration-300 overflow-visible ${
             scrolled ? "bg-[#e2ecf1] rounded-[24px] shadow-md" : "shadow-none"
           }`}
           style={scrolled ? undefined : desktopHeaderBg != null ? { backgroundColor: desktopHeaderBg } : { backgroundColor: "transparent" }}
         >
           <div className="w-full h-full px-6 flex items-center justify-between">
-            {/* Логотип: ~60×40 pill, border 1px; відступ справа до наву 40px */}
-            <a href="/" className="w-[60px] h-[40px] rounded-[20px] border border-[#4A5568] flex items-center justify-center overflow-hidden bg-white cursor-pointer hover:opacity-80 transition-opacity shrink-0 mr-10">
-              <span className="text-[#10171f] text-base font-semibold leading-none select-none" aria-hidden>꩜</span>
-            </a>
+            {/* Зона зліва: лого по центру між лівим краєм контенту та «Довідник»; при scroll 0 — квадрат 2× більший */}
+            <div className="w-[220px] min-w-[220px] flex justify-center items-center shrink-0 mr-6">
+              <a
+                href="/"
+                className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity duration-300"
+              >
+                <span
+                  className={`border-2 border-black flex items-center justify-center overflow-hidden bg-white transition-all duration-300 ${
+                    scrolled ? "w-[60px] h-[40px] rounded-[20px]" : "w-[60px] h-[60px] rounded-[12px]"
+                  }`}
+                >
+                  <span className={`text-[#10171f] font-semibold leading-none select-none transition-all duration-300 ${scrolled ? "text-base" : "text-2xl"}`} aria-hidden>꩜</span>
+                </span>
+                <span className={`font-sans text-[#10171f] font-semibold tracking-tight transition-all duration-300 ${scrolled ? "text-[15px]" : "text-lg"}`}>INZHYR</span>
+              </a>
+            </div>
 
             {/* Навігація: посилання завжди видимі на десктопі; при наведенні — підклада #D5DDE7 */}
             <nav className="flex items-center flex-nowrap gap-1.5 xl:gap-2 text-[15px] font-normal font-sans text-[#10171f] min-w-0 shrink">
@@ -289,7 +323,7 @@ export default function Header() {
               </button>
               <Link
                 to={isLoggedIn ? "/dashboard" : "/account"}
-                className="h-10 px-4 bg-[#D4DDE7] hover:bg-[#CBD5E0] rounded-lg transition-colors flex justify-center items-center gap-2 text-[#10171f] min-w-[100px]"
+                className="h-10 px-4 bg-transparent border-2 border-black hover:bg-[#f1f5f9] rounded-lg transition-colors flex justify-center items-center gap-2 text-[#10171f] min-w-[100px]"
               >
                 <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
                   <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />

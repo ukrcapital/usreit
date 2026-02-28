@@ -24,7 +24,7 @@ function ProtectedDashboard() {
 
 export default function App() {
   return (
-    <Router>
+    <Router basename={import.meta.env.BASE_URL}>
       <AuthProvider>
         <HomeBgProvider>
           <Routes>

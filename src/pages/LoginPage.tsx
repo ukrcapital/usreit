@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
 
 const COUNTRY_CODES = [
   { value: "+1", label: "+1 🇺🇸 🇨🇦" },
+  { value: "+380", label: "+380 🇺🇦" },
   { value: "+61", label: "+61 🇦🇺" },
   { value: "+30", label: "+30 🇬🇷" },
   { value: "+31", label: "+31 🇳🇱" },
@@ -33,8 +34,45 @@ const COUNTRY_CODES = [
   { value: "+46", label: "+46 🇸🇪" },
   { value: "+48", label: "+48 🇵🇱" },
   { value: "+49", label: "+49 🇩🇪" },
-  { value: "+380", label: "+380 🇺🇦" },
 ];
+
+/** Плейсхолдери номеру телефону за країною (формат, до якого звикли користувачі) */
+const PHONE_PLACEHOLDERS: Record<string, string> = {
+  "+1": "(123) 456-7890",
+  "+380": "(12) 34-56-789",
+  "+43": "660 123456",
+  "+44": "7700 900123",
+  "+49": "151 23456789",
+  "+33": "6 12 34 56 78",
+  "+39": "312 345 6789",
+  "+48": "512 345 678",
+  "+61": "412 345 678",
+  "+32": "470 12 34 56",
+  "+31": "6 12345678",
+  "+34": "612 34 56 78",
+  "+45": "20 12 34 56",
+  "+46": "70 123 45 67",
+  "+358": "40 1234567",
+  "+47": "406 12 345",
+  "+41": "78 123 45 67",
+  "+352": "661 234 567",
+  "+353": "85 123 4567",
+  "+30": "691 234 5678",
+  "+351": "912 345 678",
+  "+420": "732 123 456",
+  "+421": "912 123 456",
+  "+36": "20 123 4567",
+  "+359": "87 123 4567",
+  "+370": "612 34567",
+  "+371": "21 234 567",
+  "+372": "5123 4567",
+  "+385": "92 123 4567",
+  "+386": "31 234 567",
+  "+40": "712 345 678",
+  "+356": "7912 3456",
+  "+357": "96 123456",
+};
+const DEFAULT_PLACEHOLDER = "123 456 7890";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -67,9 +105,11 @@ export default function LoginPage() {
 
   /* Стиль плашки = біла підкладка під блоком (як на оригіналі) */
   const plashkaClass = "bg-white rounded-[24px] shadow-sm p-6 md:p-8 lg:p-10";
+  /** Відступ зліва і справа для тексту не в boxes на мобільному (як на головній) */
+  const MOB_TEXT_INDENT = "pl-8 pr-8 hero:pl-0 hero:pr-0";
 
   return (
-    <div className="main-container w-full min-h-screen bg-[#e2ecf1]/30 relative pb-32">
+    <div className="main-container w-full min-h-screen bg-[#e2ecf1]/30 relative pb-8">
       <div className="w-full max-w-[1280px] px-4 md:px-8 mx-auto pt-6 md:pt-10 relative z-20">
         {/* Плашка 1: форма входу (login-step1 або login-step2); хедер тільки з Layout */}
         <section className={`${plashkaClass} max-w-[640px] mx-auto mb-8 md:mb-12`}>
@@ -95,7 +135,7 @@ export default function LoginPage() {
                   </select>
                   <input
                     type="tel"
-                    placeholder="00 123 45 67"
+                    placeholder={PHONE_PLACEHOLDERS[countryCode] ?? DEFAULT_PLACEHOLDER}
                     value={phone}
                     onChange={(e) => { setPhone(e.target.value); setShowError(false); }}
                     className="flex-1 min-w-0 h-[56px] px-3 bg-transparent text-[13px] text-[#10171f] placeholder:text-[#10171f]/50 border-0 outline-none"
@@ -176,21 +216,22 @@ export default function LoginPage() {
           </form>
         </section>
 
-        {/* Секція «Ще немає реєстрації?» — на фоні сторінки, без білої плашки */}
+        {/* Секція «Ще немає реєстрації?» — на фоні сторінки, без білої плашки; відступи як на головній */}
         <section className="max-w-[640px] mx-auto mb-10 md:mb-14">
-          <h2 className="text-[18px] md:text-[20px] font-normal text-[#10171f] mb-3 font-e-ukraine-head text-left">
-            Ще немає реєстрації?
-          </h2>
-          <p className="text-[13px] text-[#10171f]/80 mb-6">
-            Зареєструйся, щоб відкрити рахунок і отримати доступ до всіх функцій — <span className="inline-block w-4 h-4 text-[#429243]">✓</span> онлайн за 15 хвилин.
-          </p>
-          <button
-            type="button"
-            className="w-full bg-[#10171f] text-white py-4 rounded-[12px] text-[13px] font-normal hover:opacity-90 mb-8"
-          >
-            Зареєструватися та відкрити рахунок
-          </button>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className={MOB_TEXT_INDENT}>
+            <h2 className="text-[18px] md:text-[20px] font-normal text-[#10171f] mb-3 font-e-ukraine-head text-left">
+              Ще немає реєстрації?
+            </h2>
+            <p className="text-[13px] text-[#10171f]/80 mb-6">
+              Зареєструйся, щоб відкрити рахунок і отримати доступ до всіх функцій — <span className="inline-block w-4 h-4 text-[#429243]">✓</span> онлайн за 15 хвилин.
+            </p>
+            <button
+              type="button"
+              className="w-full bg-[#10171f] text-white py-4 rounded-[12px] text-[13px] font-normal hover:opacity-90 mb-8"
+            >
+              Зареєструватися та відкрити рахунок
+            </button>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="bg-white/80 rounded-[16px] p-4 text-[11px] text-[#134169] border border-[rgba(16,23,31,0.06)]">
               Безкоштовне відкриття та обслуговування рахунку
             </div>
@@ -203,11 +244,12 @@ export default function LoginPage() {
             <div className="bg-white/80 rounded-[16px] p-4 text-[11px] text-[#134169] border border-[rgba(16,23,31,0.06)]">
               Закритий чат інвесторів та підтримка
             </div>
+            </div>
           </div>
         </section>
 
         {/* Плашки Крок 1, Крок 2, Крок 3 */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-0">
           <div className={plashkaClass}>
             <span className="text-[10px] uppercase text-[#10171f]/50 tracking-wide">Крок 1</span>
             <h3 className="text-[17px] font-normal text-[#10171f] mt-2 mb-3 font-e-ukraine-head">Рахунок Inzhur</h3>

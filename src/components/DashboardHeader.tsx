@@ -11,7 +11,14 @@ export default function DashboardHeader() {
   const { logout } = useAuth();
   const [supportOpen, setSupportOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const supportRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   useEffect(() => {
     const close = (e: MouseEvent) => {
@@ -35,13 +42,20 @@ export default function DashboardHeader() {
 
   return (
     <>
-      {/* Хедер кабінету: лого, Огляд, Документи, реферал, Підтримка, Активні заявки, бургер */}
+      {/* Хедер кабінету: на моб без тіні/обводки на початку, при прокрутці — з тінню й обводкою */}
       <header className="fixed top-4 left-0 right-0 z-[999] flex justify-center px-4">
-        <div className="w-full max-w-[1280px] h-[72px] md:h-[80px] bg-[#e2ecf1] rounded-[24px] flex items-center justify-between px-4 md:px-6 shadow-md">
+        <div
+          className={`w-full max-w-[1280px] h-[72px] md:h-[80px] bg-[#e2ecf1] rounded-[24px] flex items-center justify-between px-4 md:px-6 transition-all duration-200 ${
+            scrolled ? "shadow-md border border-[rgba(0,0,0,0.08)]" : "shadow-none border border-transparent md:shadow-md md:border-[rgba(0,0,0,0.08)]"
+          }`}
+        >
           {/* Лого + навігація */}
           <div className="flex items-center gap-4 md:gap-6 lg:gap-8 min-w-0">
-            <Link to="/" className="w-10 h-10 md:w-12 md:h-12 shrink-0 flex items-center justify-center rounded-[12px] border-2 border-[#10171f] bg-white overflow-hidden">
-              <span className="text-[#10171f] text-sm md:text-base font-medium leading-none select-none" aria-hidden>꩜</span>
+            <Link to="/" className="flex items-center gap-2 shrink-0">
+              <div className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center rounded-[12px] border-2 border-black bg-white overflow-hidden">
+                <span className="text-[#10171f] text-sm md:text-base font-medium leading-none select-none" aria-hidden>꩜</span>
+              </div>
+              <span className="font-sans text-[#10171f] text-[15px] md:text-base font-semibold tracking-tight">INZHYR</span>
             </Link>
             <nav className="hidden header:flex items-center gap-6 lg:gap-8 text-[13px] font-normal text-[#10171f]">
               <Link to="/dashboard" className="hover:underline font-medium">Огляд</Link>
@@ -98,20 +112,20 @@ export default function DashboardHeader() {
 
       {/* Бургер-меню для залогіненого — схема як без залогування, інші тексти + Вийти */}
       <div
-        className={`header:hidden fixed inset-0 z-[1001] transition-[visibility,opacity] duration-300 ${
+        className={`fixed inset-0 z-[1001] transition-[visibility,opacity] duration-300 ${
           menuOpen ? "visible opacity-100" : "invisible opacity-0 pointer-events-none"
         }`}
       >
         <div className="absolute inset-0 bg-black/40" onClick={() => setMenuOpen(false)} aria-hidden />
         <div
-          className={`absolute top-0 right-0 bottom-0 w-full bg-[#1A222B] shadow-xl flex flex-col transition-transform duration-300 ease-out ${
+          className={`absolute top-0 right-0 bottom-0 w-full header:w-[30%] header:max-w-[30vw] bg-[#1A222B] shadow-xl flex flex-col transition-transform duration-300 ease-out ${
             menuOpen ? "translate-x-0" : "translate-x-full"
           }`}
         >
           {/* Верх: лого зліва, кнопка закриття справа (X в темному колі) */}
           <div className="flex items-center justify-between p-6 pb-4 shrink-0">
             <Link to="/" onClick={() => setMenuOpen(false)} className="shrink-0">
-              <div className="w-24 h-24 rounded-[20px] border-2 border-[#10171f] flex items-center justify-center overflow-hidden bg-white">
+              <div className="w-24 h-24 rounded-[20px] border-2 border-black flex items-center justify-center overflow-hidden bg-white">
                 <span className="text-[#10171f] text-4xl font-medium leading-none select-none" aria-hidden>꩜</span>
               </div>
             </Link>
