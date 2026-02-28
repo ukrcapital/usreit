@@ -36,16 +36,16 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
           {/* Картка 1: Співвласник + Брокерський рахунок + Дії */}
           <div className="bg-white rounded-[24px] p-6 md:p-8 shadow-sm flex flex-col">
-            <div className="flex justify-between items-start mb-6">
-              <div>
+            <div className="mb-6">
+              <div className="flex justify-between items-center gap-3">
                 <span className="text-[11px] text-[#10171f]/50 uppercase tracking-wide">Співвласник</span>
-                <h2 className="text-[18px] md:text-[20px] font-semibold text-[#10171f] mt-1">
-                  Козак Святослав Володимирович
-                </h2>
+                <a href="#" className="text-[11px] text-[#10171f] border border-[rgba(16,23,31,0.15)] rounded-[8px] px-3 py-2 hover:bg-[#f5f5f5] transition-colors shrink-0">
+                  Профіль
+                </a>
               </div>
-              <a href="#" className="text-[11px] text-[#10171f] border border-[rgba(16,23,31,0.15)] rounded-[8px] px-3 py-2 hover:bg-[#f5f5f5] transition-colors shrink-0">
-                Профіль
-              </a>
+              <h2 className="text-[18px] md:text-[20px] font-semibold text-[#10171f] mt-1">
+                Козак Святослав Володимирович
+              </h2>
             </div>
             <div className="border-t border-[rgba(16,23,31,0.1)] pt-4">
               <span className="text-[11px] text-[#10171f]/50 uppercase tracking-wide">Брокерський рахунок</span>
@@ -61,6 +61,9 @@ export default function DashboardPage() {
                 </svg>
                 <select className="text-[11px] text-[#10171f]/60 border-0 bg-transparent cursor-pointer focus:outline-none focus:ring-0">
                   <option>за весь час</option>
+                  <option>за 30 днів</option>
+                  <option>за 90 днів</option>
+                  <option>за рік</option>
                 </select>
               </div>
             </div>

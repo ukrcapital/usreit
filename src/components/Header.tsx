@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { useHomeBg, DEFAULT_HOME_BG } from "../context/HomeBgContext";
 
 const MOBILE_NAV_LINKS: { label: string; path?: string }[] = [
   { label: "Довідник", path: "/handbook" },
@@ -16,11 +15,18 @@ const MOBILE_NAV_LINKS: { label: string; path?: string }[] = [
 
 const HEADER_BREAKPOINT = 1200;
 
+/** Корінь сайту: для GitHub Pages — /repo-name/, для локальної збірки — ./ (уникаємо 404 при кліку на лого) */
+const HOME_HREF = (typeof import.meta !== "undefined" && import.meta.env?.BASE_URL) ? import.meta.env.BASE_URL : "/";
+
+/** Одна змінна для проміжку в desktop-хедері: між (іконка+INZHYR) і Довідник, і між назвами посилань. 1 = 4px; змінити тут — оновиться всюди */
+const DESKTOP_HEADER_GAP = { gap: "gap-2", mr: "mr-2", px: "px-2" };
+
 export default function Header() {
   const { isLoggedIn } = useAuth();
   const location = useLocation();
-  const homeBgCtx = useHomeBg();
   const [scrolled, setScrolled] = useState(false);
+  const [desktopHeaderVisible, setDesktopHeaderVisible] = useState(true);
+  const lastScrollY = useRef(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [isMobileView, setIsMobileView] = useState(() => typeof window !== "undefined" && window.innerWidth <= HEADER_BREAKPOINT);
@@ -45,11 +51,26 @@ export default function Header() {
     { label: "Депозитарій Inzhur Capital", path: "/energy" },
     { label: "Девелопер Inzhur BUD", path: "/developer" },
   ];
-  const isHomeOrUs = isHome || isUsSite;
-  const desktopHeaderBg = !scrolled && isHomeOrUs ? DEFAULT_HOME_BG : undefined;
+
+  // Desktop header: один колір фону (як на сторінці /account або за замовчуванням), тінь тільки при скролі, верхній відступ тільки при scroll = 0
+  const desktopBarBg = isAccount ? "bg-[#eef2f5]" : "bg-[#e2ecf1]";
+  const desktopTopPad = scrolled ? "pt-0" : "pt-2";
+  const desktopShadow = "shadow-none";
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
+    const onScroll = () => {
+      const y = window.scrollY;
+      setScrolled(y > 20);
+      // Десктоп: ховати при скролі вниз, показувати при скролі вгору або біля верху сторінки
+      if (y <= 30) {
+        setDesktopHeaderVisible(true);
+      } else if (y > lastScrollY.current) {
+        setDesktopHeaderVisible(false);
+      } else {
+        setDesktopHeaderVisible(true);
+      }
+      lastScrollY.current = y;
+    };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -88,11 +109,11 @@ export default function Header() {
         >
           {/* Верх: лого зліва (у 2 рази більший), кнопка закриття справа */}
           <div className="flex items-center justify-between p-10 pb-2 pt-4 shrink-0">
-            <Link to="/" onClick={() => setIsMenuOpen(false)} className="shrink-0">
-              <div className="w-[72px] h-[72px] rounded-[14px] border-2 border-black flex items-center justify-center overflow-hidden bg-white">
-                <span className="text-[#10171f] text-[32px] font-medium leading-none select-none" aria-hidden>꩜</span>
+            <a href={HOME_HREF} onClick={() => setIsMenuOpen(false)} className="shrink-0">
+              <div className="w-[72px] h-[72px] rounded-[14px] border-[1.2px] border-black flex items-center justify-center overflow-hidden bg-transparent">
+                <span className="text-[#10171f] text-[32px] font-medium leading-none select-none inline-block scale-200 origin-center" aria-hidden>꩜</span>
               </div>
-            </Link>
+            </a>
             <button
               type="button"
               onClick={() => setIsMenuOpen(false)}
@@ -197,19 +218,19 @@ export default function Header() {
       </div>
       )}
 
-      {/* Мобільний хедер */}
-      <header className="header:hidden fixed top-4 left-0 right-0 z-[999] flex justify-center px-4">
+      {/* Мобільний хедер: при скролі ближче до верху */}
+      <header className={`header:hidden fixed left-0 right-0 z-[999] flex justify-center px-4 transition-[top] duration-200 ${scrolled ? "top-1" : "top-4"}`}>
         <div
           className={`w-full max-w-[1280px] h-[72px] bg-[#e2ecf1] rounded-[24px] flex items-center justify-between pl-8 pr-4 hero:pl-6 hero:pr-6 md:px-6 transition-all duration-200 ${
             scrolled ? "shadow-md border border-[rgba(0,0,0,0.08)]" : "shadow-none border border-transparent"
           }`}
         >
-          <Link to="/" className="flex items-center gap-2 shrink-0">
-            <div className="flex w-10 h-10 rounded-[12px] border-2 border-black items-center justify-center overflow-hidden bg-white shrink-0">
-              <span className="text-[#10171f] text-sm font-medium leading-none select-none" aria-hidden>꩜</span>
+          <a href={HOME_HREF} className="flex items-center gap-2 shrink-0">
+            <div className="flex w-10 h-10 rounded-[12px] border-[1.2px] border-black items-center justify-center overflow-hidden bg-transparent shrink-0">
+              <span className="text-[#10171f] text-sm font-medium leading-none select-none inline-block scale-200 origin-center" aria-hidden>꩜</span>
             </div>
             <span className="font-sans text-[#10171f] text-[15px] font-semibold tracking-tight">INZHYR</span>
-          </Link>
+          </a>
           <div className="flex items-center gap-2 shrink-0">
             <Link
               to={isUsSite ? "/" : "/us"}
@@ -220,7 +241,7 @@ export default function Header() {
             </Link>
             <Link
               to={isLoggedIn ? "/dashboard" : "/account"}
-              className="flex w-10 h-10 rounded-[12px] items-center justify-center border border-[#10171f] text-[#10171f] hover:bg-[#10171f] hover:text-white transition-colors shrink-0"
+              className="flex w-10 h-10 rounded-[12px] items-center justify-center bg-[#F0F4F8] border border-[#10171f] text-[#10171f] hover:bg-[#10171f] hover:text-white transition-colors shrink-0"
               aria-label={isLoggedIn ? "Кабінет" : "Вхід"}
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -241,40 +262,31 @@ export default function Header() {
         </div>
       </header>
 
-      {/* Десктопний хедер (орієнтир з оригіналу): висота 64px, padding 24px, лого 60×40 pill, нав gap 32px, кнопки 40px, Telegram #D4DDE7, Кабінет white border #A0B0C4 */}
-      <header className="hidden header:flex fixed top-4 left-0 w-full justify-center z-[999]">
-        <div
-          className={`w-full max-w-[1584px] mx-4 min-h-[64px] h-[64px] relative transition-all duration-300 overflow-visible ${
-            scrolled ? "bg-[#e2ecf1] rounded-[24px] shadow-md" : "shadow-none"
-          }`}
-          style={scrolled ? undefined : desktopHeaderBg != null ? { backgroundColor: desktopHeaderBg } : { backgroundColor: "transparent" }}
-        >
-          <div className="w-full h-full px-6 flex items-center justify-between">
-            {/* Зона зліва: лого по центру між лівим краєм контенту та «Довідник»; при scroll 0 — квадрат 2× більший */}
-            <div className="w-[220px] min-w-[220px] flex justify-center items-center shrink-0 mr-6">
-              <Link
-                to="/"
+      {/* Десктопний хедер: при скролі вниз ховається, при скролі вгору — з’являється */}
+      <header className={`hidden header:flex fixed top-0 left-0 w-full justify-center z-[999] transition-[padding,transform] duration-300 ease-out ${desktopTopPad} ${desktopBarBg} ${desktopHeaderVisible ? "translate-y-0" : "-translate-y-full"}`}>
+        <div className={`w-full min-h-[64px] h-[64px] relative overflow-visible transition-shadow duration-200 ${desktopBarBg} ${desktopShadow} ${scrolled ? "max-w-none mx-0" : "max-w-[1584px] mx-4"}`}>
+          <div className={`w-full h-full px-6 flex items-center ${DESKTOP_HEADER_GAP.gap} ${scrolled ? "max-w-[1584px] mx-auto" : ""}`}>
+            {/* Зона логотипу: DESKTOP_HEADER_GAP задає проміжок між лого і посиланнями та між посиланнями */}
+            <div className={`w-auto min-w-0 flex justify-start items-center shrink-0 ${DESKTOP_HEADER_GAP.mr}`}>
+              <a
+                href={HOME_HREF}
                 className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity duration-300"
               >
-                <span
-                  className={`border-2 border-black flex items-center justify-center overflow-hidden bg-white transition-all duration-300 ${
-                    scrolled ? "w-[60px] h-[40px] rounded-[20px]" : "w-[60px] h-[60px] rounded-[12px]"
-                  }`}
-                >
-                  <span className={`text-[#10171f] font-semibold leading-none select-none transition-all duration-300 ${scrolled ? "text-base" : "text-2xl"}`} aria-hidden>꩜</span>
+                <span className="border-[1.2px] border-black flex items-center justify-center overflow-hidden bg-transparent w-[42px] h-[42px] rounded-[10px]">
+                  <span className="text-[#10171f] font-semibold leading-none select-none text-sm inline-block scale-200 origin-center" aria-hidden>꩜</span>
                 </span>
-                <span className={`font-sans text-[#10171f] font-semibold tracking-tight transition-all duration-300 ${scrolled ? "text-[15px]" : "text-lg"}`}>INZHYR</span>
-              </Link>
+                <span className="font-sans text-[#10171f] font-semibold tracking-tight text-[13px]">INZHYR</span>
+              </a>
             </div>
 
             {/* Навігація: посилання завжди видимі на десктопі; при наведенні — підклада #D5DDE7 */}
-            <nav className="flex items-center flex-nowrap gap-1.5 xl:gap-2 text-[15px] font-normal font-sans text-[#10171f] min-w-0 shrink">
+            <nav className={`flex items-center flex-nowrap ${DESKTOP_HEADER_GAP.gap} text-[14px] font-normal font-sans text-[#10171f] min-w-0 shrink`}>
               <>
-                <Link to="/handbook" className="shrink-0 whitespace-nowrap px-4 py-2 rounded-full hover:bg-[#D5DDE7] transition-colors">Довідник</Link>
-                <span className="shrink-0 whitespace-nowrap px-4 py-2 rounded-full hover:bg-[#D5DDE7] cursor-pointer transition-colors">Про Інжур</span>
-                <span className="shrink-0 whitespace-nowrap px-4 py-2 rounded-full hover:bg-[#D5DDE7] cursor-pointer transition-colors">Про Андрія Журжія</span>
-                <span className="shrink-0 whitespace-nowrap px-4 py-2 rounded-full hover:bg-[#D5DDE7] cursor-pointer transition-colors">Новини</span>
-                <Link to="/contacts" className="shrink-0 whitespace-nowrap px-4 py-2 rounded-full hover:bg-[#D5DDE7] transition-colors">Контакти</Link>
+                <Link to="/handbook" className={`shrink-0 whitespace-nowrap ${DESKTOP_HEADER_GAP.px} py-2 rounded-full hover:bg-[#D5DDE7] transition-colors`}>Довідник</Link>
+                <span className={`shrink-0 whitespace-nowrap ${DESKTOP_HEADER_GAP.px} py-2 rounded-full hover:bg-[#D5DDE7] cursor-pointer transition-colors`}>Про Інжур</span>
+                <span className={`shrink-0 whitespace-nowrap ${DESKTOP_HEADER_GAP.px} py-2 rounded-full hover:bg-[#D5DDE7] cursor-pointer transition-colors`}>Про Андрія Журжія</span>
+                <span className={`shrink-0 whitespace-nowrap ${DESKTOP_HEADER_GAP.px} py-2 rounded-full hover:bg-[#D5DDE7] cursor-pointer transition-colors`}>Новини</span>
+                <Link to="/contacts" className={`shrink-0 whitespace-nowrap ${DESKTOP_HEADER_GAP.px} py-2 rounded-full hover:bg-[#D5DDE7] transition-colors`}>Контакти</Link>
               </>
               <div className="relative shrink-0">
                 <button
@@ -285,7 +297,7 @@ export default function Header() {
                   aria-expanded={isMoreOpen}
                   aria-haspopup="true"
                 >
-                  <span className="text-[13px] font-medium leading-none text-[#10171f]">...</span>
+                  <span className="text-[12px] font-medium leading-none text-[#10171f]">...</span>
                 </button>
                 {isMoreOpen && (
                   <div
@@ -298,7 +310,7 @@ export default function Header() {
                         <Link
                           to={path}
                           onClick={() => setIsMoreOpen(false)}
-                          className="block px-5 py-3 text-[15px] font-normal text-[#10171f] hover:bg-[#F0F4F8] transition-colors"
+                          className="block px-5 py-3 text-[14px] font-normal text-[#10171f] hover:bg-[#F0F4F8] transition-colors"
                         >
                           {label}
                         </Link>
@@ -309,26 +321,26 @@ export default function Header() {
               </div>
             </nav>
 
-            {/* Кнопки справа: мова, Консультація, Кабінет — однаковий фон #D4DDE7 */}
-            <div className="flex items-center gap-3 shrink-0 ml-10">
+            {/* Кнопки справа: той самий проміжок DESKTOP_HEADER_GAP, ml-auto притискає до правого краю */}
+            <div className={`flex items-center ${DESKTOP_HEADER_GAP.gap} shrink-0 ml-auto`}>
               <Link
                 to={isUsSite ? "/" : "/us"}
-                className="w-10 h-10 rounded-lg bg-[#D4DDE7] hover:bg-[#CBD5E0] flex items-center justify-center text-[#10171f] transition-colors text-[13px] font-semibold"
+                className="w-10 h-10 rounded-lg bg-[#D4DDE7] hover:bg-[#CBD5E0] flex items-center justify-center text-[#10171f] transition-colors text-[12px] font-semibold"
                 aria-label={isUsSite ? "Українська" : "English"}
               >
                 {isUsSite ? "UA" : "US"}
               </Link>
-              <button className="h-10 min-w-[190px] px-4 bg-[#D4DDE7] hover:bg-[#CBD5E0] rounded-lg transition-colors text-[15px] font-normal text-[#10171f]">
+              <button className="h-10 min-w-[190px] px-4 bg-[#D4DDE7] hover:bg-[#CBD5E0] rounded-lg transition-colors text-[14px] font-normal text-[#10171f]">
                 Консультація в Telegram
               </button>
               <Link
                 to={isLoggedIn ? "/dashboard" : "/account"}
-                className="h-10 px-4 bg-transparent border-2 border-black hover:bg-[#f1f5f9] rounded-lg transition-colors flex justify-center items-center gap-2 text-[#10171f] min-w-[100px]"
+                className="h-10 px-4 bg-[#F0F4F8] border-2 border-black hover:bg-[#f1f5f9] rounded-lg transition-colors flex justify-center items-center gap-2 text-[#10171f] min-w-[100px]"
               >
                 <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
                   <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                 </svg>
-                <span className="text-[15px] font-normal">{isLoggedIn ? "Кабінет" : "Вхід"}</span>
+                <span className="text-[14px] font-normal">{isLoggedIn ? "Кабінет" : "Вхід"}</span>
               </Link>
             </div>
           </div>

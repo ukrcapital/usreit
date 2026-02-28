@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { useHomeBg, mixHex } from "../context/HomeBgContext";
 import "./index.css";
@@ -33,6 +33,7 @@ export default function HomePage() {
   const proposalsRef = useRef(null as HTMLElement | null);
   const mainInvestmentsRef = useRef(null as HTMLElement | null);
   const videoFaqRef = useRef(null as HTMLElement | null);
+  const contentWrapperRef = useRef(null as HTMLDivElement | null);
   const num1Ref = useRef(null as HTMLSpanElement | null);
   const num2Ref = useRef(null as HTMLSpanElement | null);
   const num3Ref = useRef(null as HTMLSpanElement | null);
@@ -40,6 +41,15 @@ export default function HomePage() {
   const homeBgCtxRef = useRef(homeBgCtx);
   homeBgCtxRef.current = homeBgCtx;
   const dateRange = getLast10DaysRange();
+  const [howToStartStep, setHowToStartStep] = useState(0);
+  const howToStartTouchStart = useRef<number | null>(null);
+
+  const HOW_TO_START_STEPS = [
+    { num: "01", title: "Зареєструйся в кабінеті інвестора Inzhur", desc: "та безкоштовно відкрий брокерський рахунок" },
+    { num: "02", title: "Поповни брокерський рахунок", desc: "по IBAN на необхідну суму та купуй сертифікати фонду" },
+    { num: "03", title: "Заробляй на щомісячних дивідендах", desc: "та зростанні вартості активів фондів (капіталізація)" },
+    { num: "04", title: "Додатково: закритий Telegram-чат", desc: "одразу після реєстрації — особисте запрошення в кабінеті (21+ тисяч реальних інвесторів)" },
+  ];
 
   useEffect(() => {
     const gsap = typeof window !== "undefined" ? window.gsap : null;
@@ -66,9 +76,8 @@ export default function HomePage() {
       gsap.fromTo(el, { opacity: 0 }, { opacity: 1, duration: 0.6, ease: "power2.out", scrollTrigger: { trigger: el, start: "top 88%" } });
     });
 
-    // Плавна зміна фону на #DDE7D0 для секцій: Пропозиції Inzhur, Головне про інвестиції, Відео та питання
+    // Десктоп (header): перемикання фону привʼязане до секцій — кожна 3-тя секція дає колір #DDE7D0
     const ctx = homeBgCtxRef.current;
-    const triggerSections = [proposalsRef, mainInvestmentsRef, videoFaqRef] as const;
     if (ctx) {
       ctx.setHomeBg(ctx.defaultHomeBg);
       ScrollTrigger.create({
@@ -78,18 +87,37 @@ export default function HomePage() {
         onUpdate: () => {
           const c = homeBgCtxRef.current;
           if (!c) return;
-          const vh = window.innerHeight;
-          let maxIntensity = 0;
-          triggerSections.forEach((ref) => {
-            const el = ref.current;
-            if (!el) return;
-            const rect = el.getBoundingClientRect();
-            const progress = (vh - rect.top) / (vh + rect.height);
-            const clamped = Math.max(0, Math.min(1, progress));
-            const intensity = Math.sin(clamped * Math.PI);
-            if (intensity > maxIntensity) maxIntensity = intensity;
-          });
-          c.setHomeBg(mixHex(c.defaultHomeBg, c.proposalsBg, maxIntensity));
+          const isDesktop = window.innerWidth >= 1201;
+          if (isDesktop && contentWrapperRef.current) {
+            const sections = contentWrapperRef.current.querySelectorAll<HTMLElement>(":scope > section");
+            const vh = window.innerHeight;
+            const viewportCenter = vh / 2;
+            let activeIndex = 0;
+            for (let i = 0; i < sections.length; i++) {
+              const rect = sections[i].getBoundingClientRect();
+              if (rect.top <= viewportCenter && rect.bottom >= viewportCenter) {
+                activeIndex = i;
+                break;
+              }
+              if (rect.bottom < viewportCenter) activeIndex = i;
+            }
+            const intensity = activeIndex % 3 === 2 ? 1 : 0;
+            c.setHomeBg(mixHex(c.defaultHomeBg, c.proposalsBg, intensity));
+          } else {
+            const triggerSections = [proposalsRef, mainInvestmentsRef, videoFaqRef] as const;
+            const vh = window.innerHeight;
+            let maxIntensity = 0;
+            triggerSections.forEach((ref) => {
+              const el = ref.current;
+              if (!el) return;
+              const rect = el.getBoundingClientRect();
+              const progress = (vh - rect.top) / (vh + rect.height);
+              const clamped = Math.max(0, Math.min(1, progress));
+              const intensity = Math.sin(clamped * Math.PI);
+              if (intensity > maxIntensity) maxIntensity = intensity;
+            });
+            c.setHomeBg(mixHex(c.defaultHomeBg, c.proposalsBg, maxIntensity));
+          }
         },
       });
     }
@@ -100,14 +128,14 @@ export default function HomePage() {
   return (
     <div className="main-container flex w-full flex-col items-center bg-[rgba(226,236,241,0.2)] relative overflow-x-hidden mx-auto my-0 pb-32">
       {/* Єдиний контейнер для центрування: як на оригіналі (content-grid з відступами) */}
-      <div className={`w-full ${CONTENT_MAX} mx-auto ${CONTENT_PX} relative z-[2] mt-0`}>
+      <div ref={contentWrapperRef} className={`w-full ${CONTENT_MAX} mx-auto ${CONTENT_PX} header:pl-[44px] header:pr-6 relative z-[2] mt-0`}>
         
         {/* ========== 1. Hero (Intro) — на десктопі фон на всю ширину екрана, контент з тим самим відступом зліва ========== */}
         <section className={`content-section ${SECTION_PY} hero:pt-20 hero:pb-28 first:pt-12 pb-6 md:pb-16 header:pb-12 header:w-screen header:relative header:left-1/2 header:-translate-x-1/2`}>
           <div className="w-full min-h-[480px] hero:min-h-[720px] bg-transparent relative overflow-hidden header:overflow-visible">
             {/* Фон (мапа): на десктопі до країв екрана, зліва відступ як у контенту */}
             <div className="hero-first-block-bg absolute inset-0 z-[3] hidden header:block" aria-hidden />
-            <div className="relative z-[6] w-full pt-[12px] hero:pt-[18px] pl-0 hero:pl-2 header:max-w-[1584px] header:mx-auto header:px-6">
+            <div className="relative z-[6] w-full pt-[12px] hero:pt-[18px] pl-0 hero:pl-2 header:max-w-[1584px] header:mx-auto header:pl-[44px] header:pr-6">
               <div className={MOB_TEXT_INDENT}>
                 <h1 className="text-[32px] hero:text-[62px] font-normal hero:font-light leading-[1.45] hero:leading-[1.2] text-[#10171f] tracking-[-1.5px] hero:tracking-[-2.64px]">
                   Твої інвестиції{' '}
@@ -127,70 +155,78 @@ export default function HomePage() {
                 <p className="text-[11px] font-light leading-[16px] text-white">
                   Inzhur — будує, купує та керує великою нерухомістю в твоїх інтересах. Ти та інші українці — інвестуєте, спільно володієте майном фонду та отримуєте повністю пасивний дохід.
                 </p>
-                <Link to="/account" className="mt-6 inline-flex items-center justify-center h-12 px-6 rounded-[16px] bg-white text-[#134169] text-[14px] font-medium hover:bg-white/90 transition-colors">
+                <Link to="/account" className="mt-6 inline-flex items-center justify-center h-12 px-6 rounded-[16px] bg-white text-[#134169] text-[14px] font-medium hover:bg-white/90 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
                   Почати
                   <span className="ml-1.5" aria-hidden>→</span>
                 </Link>
               </div>
-            <div ref={statsRef} className={`relative z-[13] mt-16 hero:mt-[140px] flex flex-col hero:flex-row gap-8 hero:gap-[150px] ${MOB_TEXT_INDENT}`}>
+            {/* На мобільном: спочатку Мапа (order-1), потім Статистика (order-2). На hero+: Статистика (order-1), потім Мапа (order-2). Відстань між ними — 50%: gap-4 на моб, hero:gap-[35px] на hero+ */}
+            <div className="flex flex-col gap-2 hero:gap-[35px]">
+              {/* Секція 3: Мапа об'єктів — тільки при ширині <1201px */}
+              <section className={`order-1 hero:order-2 animate-on-scroll content-section pt-8 pb-0 md:pt-12 md:pb-6 block header:hidden`} aria-labelledby="map-heading">
+                <div className={MOB_TEXT_INDENT}>
+                  <h2 id="map-heading" className="text-[24px] md:text-[30px] font-normal text-[#10171f] tracking-[-1px] mb-6">
+                    Мапа об'єктів
+                  </h2>
+                  <p className="text-[14px] font-light text-[#10171f] max-w-[640px] mb-6">
+                    Об'єкти нерухомості Inzhur REIT — супермаркети, ресторани, ТРЦ та інша комерційна нерухомість по всій Україні.
+                  </p>
+                </div>
+                <div className="map-objects-block rounded-[24px] overflow-hidden aspect-[16/10] min-h-[280px]" aria-hidden />
+              </section>
+              <div ref={statsRef} className={`order-2 hero:order-1 relative z-[13] mt-0 hero:mt-0 header:mt-16 flex flex-col hero:flex-row gap-8 hero:gap-[150px] ${MOB_TEXT_INDENT}`}>
               <div className="max-w-xs">
-                <div className="w-[32px] h-[32px] flex items-center justify-center text-[#226e91]" aria-hidden>
-                  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                    <circle cx="9" cy="7" r="4" />
-                    <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-                  </svg>
+                <div className="flex items-center gap-2">
+                  <div className="w-[32px] h-[32px] shrink-0 flex items-center justify-center text-[#226e91]" aria-hidden>
+                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                      <circle cx="9" cy="7" r="4" />
+                      <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
+                  </div>
+                  <span ref={num1Ref} className="text-[32px] hero:text-[44px] font-light text-[#10171f] tracking-[-1px] whitespace-nowrap" aria-live="polite">0</span>
             </div>
-                <span ref={num1Ref} className="block text-[32px] hero:text-[44px] font-light text-[#10171f] tracking-[-1px] mt-2" aria-live="polite">0</span>
                 <span className="block text-[13px] text-[#10171f] mt-2">активних рахунків в Inzhur</span>
               </div>
               <div className="max-w-xs">
-                <div className="w-[32px] h-[32px] flex items-center justify-center text-[#226e91]" aria-hidden>
-                  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="12" y1="20" x2="12" y2="10" />
-                    <line x1="18" y1="20" x2="18" y2="4" />
-                    <line x1="6" y1="20" x2="6" y2="16" />
-                  </svg>
+                <div className="flex items-center gap-2">
+                  <div className="w-[32px] h-[32px] shrink-0 flex items-center justify-center text-[#226e91]" aria-hidden>
+                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="12" y1="20" x2="12" y2="10" />
+                      <line x1="18" y1="20" x2="18" y2="4" />
+                      <line x1="6" y1="20" x2="6" y2="16" />
+                    </svg>
+                  </div>
+                  <span ref={num2Ref} className="text-[32px] hero:text-[44px] font-light text-[#10171f] tracking-[-1px] whitespace-nowrap" aria-live="polite">0 ₴</span>
                 </div>
-                <span ref={num2Ref} className="block text-[32px] hero:text-[44px] font-light text-[#10171f] tracking-[-1px] mt-2" aria-live="polite">0 ₴</span>
                 <span className="block text-[13px] text-[#10171f] mt-2">активів в управлінні</span>
               </div>
               <div className="max-w-xs">
-                <div className="w-[32px] h-[32px] flex items-center justify-center text-[#226e91]" aria-hidden>
-                  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
-                    <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
-                    <path d="M18 12a2 2 0 0 0 0 4h4v-4h-4z" />
-                  </svg>
+                <div className="flex items-center gap-2">
+                  <div className="w-[32px] h-[32px] shrink-0 flex items-center justify-center text-[#226e91]" aria-hidden>
+                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
+                      <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
+                      <path d="M18 12a2 2 0 0 0 0 4h4v-4h-4z" />
+                    </svg>
+                  </div>
+                  <span ref={num3Ref} className="text-[32px] hero:text-[44px] font-light text-[#10171f] tracking-[-1px] whitespace-nowrap" aria-live="polite">0 ₴</span>
                 </div>
-                <span ref={num3Ref} className="block text-[32px] hero:text-[44px] font-light text-[#10171f] tracking-[-1px] mt-2" aria-live="polite">0 ₴</span>
                 <span className="block text-[13px] text-[#10171f] mt-2">дохід співвласників:</span>
                 <div className="mt-2">
-                  <span className="block text-[11px] text-[#2776c1]">549 758 938 ₴ — капіталізація</span>
-                  <span className="block text-[11px] text-[#2776c1] mt-1">631 562 392 ₴ — виплачено дивідендів</span>
+                  <span className="block text-[11px] text-[#2776c1] whitespace-nowrap">549 758 938 ₴ — капіталізація</span>
+                  <span className="block text-[11px] text-[#2776c1] mt-1 whitespace-nowrap">631 562 392 ₴ — виплачено дивідендів</span>
                 </div>
                 <span className="block text-[11px] font-light text-[#959696] mt-2">починаючи з {dateRange.start} по {dateRange.end}</span>
               </div>
             </div>
             </div>
           </div>
-        </section>
-
-        {/* ========== 1b. Мапа об'єктів: тільки при ширині <1201px; при ≥1201 зникає (фонова мапа вже в Hero) ========== */}
-        <section className={`animate-on-scroll content-section pt-8 pb-3 md:pt-12 md:pb-24 block header:hidden`} aria-labelledby="map-heading">
-          <div className={MOB_TEXT_INDENT}>
-            <h2 id="map-heading" className="text-[24px] md:text-[30px] font-normal text-[#10171f] tracking-[-1px] mb-6">
-              Мапа об'єктів
-            </h2>
-            <p className="text-[14px] font-light text-[#10171f] max-w-[640px] mb-6">
-              Об'єкти нерухомості Inzhur REIT — супермаркети, ресторани, ТРЦ та інша комерційна нерухомість по всій Україні.
-            </p>
           </div>
-          <div className="map-objects-block rounded-[24px] overflow-hidden aspect-[16/10] min-h-[280px]" aria-hidden />
         </section>
 
         {/* ========== 2. Пропозиції Inzhur ========== */}
-        <section ref={proposalsRef} className={`animate-on-scroll content-section ${SECTION_PY} pt-3 md:pt-24 lg:pt-28 header:pt-12`}>
+        <section ref={proposalsRef} className={`animate-on-scroll content-section ${SECTION_PY} pt-[50px] md:pt-24 lg:pt-28 header:pt-12`}>
           <div className={MOB_TEXT_INDENT}>
             <h2 className="text-[28px] md:text-[37px] font-normal text-[#10171f] tracking-[-1px] mb-4">
               Пропозиції Inzhur
@@ -200,7 +236,7 @@ export default function HomePage() {
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 md:items-stretch">
-            <div className="border border-[rgba(19,65,105,0.2)] rounded-[26px] p-6 md:p-8 flex flex-col gap-4 hover:border-[#134169]/40 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 bg-white/60 min-h-0">
+            <div className="border border-[rgba(19,65,105,0.2)] rounded-[26px] p-6 md:p-8 flex flex-col gap-4 hover:border-[#134169]/40 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 bg-white min-h-0">
               <div className="flex flex-col gap-4 flex-1 min-h-0">
                 <span className="text-[11px] font-medium text-[#134169] uppercase tracking-wide">Нерухомість</span>
                 <h3 className="text-[17px] md:text-[20px] font-semibold text-[#10171f]">Фонд Inzhur REIT</h3>
@@ -223,11 +259,11 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="pt-2 flex w-full gap-2 shrink-0">
-                <Link to="/account" className="flex-1 min-w-0 inline-flex items-center justify-center h-10 px-4 rounded-[12px] bg-white text-[#10171f] text-[13px] font-medium border border-[#10171f] hover:bg-[#f5f5f5] transition-colors">Про фонд</Link>
-                <Link to="/account" className="flex-1 min-w-0 inline-flex items-center justify-center h-10 px-4 rounded-[12px] bg-[#10171f] text-white text-[13px] font-medium hover:bg-[#1a2330] transition-colors">Інвестувати</Link>
+                <Link to="/account" className="flex-1 min-w-0 inline-flex items-center justify-center h-14 px-6 rounded-[14px] bg-white text-[#10171f] text-[15px] font-medium border border-[#10171f] hover:bg-[#f5f5f5] transition-colors whitespace-nowrap">Про фонд</Link>
+                <Link to="/account" className="flex-1 min-w-0 inline-flex items-center justify-center h-14 px-6 rounded-[14px] bg-[#10171f] text-white text-[15px] font-medium hover:bg-[#1a2330] transition-colors whitespace-nowrap">Інвестувати</Link>
               </div>
             </div>
-            <div className="border border-[rgba(19,65,105,0.2)] rounded-[26px] p-6 md:p-8 flex flex-col gap-4 hover:border-[#134169]/40 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 bg-white/60 min-h-0">
+            <div className="border border-[rgba(19,65,105,0.2)] rounded-[26px] p-6 md:p-8 flex flex-col gap-4 hover:border-[#134169]/40 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 bg-white min-h-0">
               <div className="flex flex-col gap-4 flex-1 min-h-0">
                 <span className="text-[11px] font-medium text-[#134169] uppercase tracking-wide">Енергетика</span>
                 <h3 className="text-[17px] md:text-[20px] font-semibold text-[#10171f]">Фонд Inzhur Energy</h3>
@@ -250,11 +286,11 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="pt-2 flex w-full gap-2 shrink-0">
-                <Link to="/account" className="flex-1 min-w-0 inline-flex items-center justify-center h-10 px-4 rounded-[12px] bg-white text-[#10171f] text-[13px] font-medium border border-[#10171f] hover:bg-[#f5f5f5] transition-colors">Про фонд</Link>
-                <Link to="/account" className="flex-1 min-w-0 inline-flex items-center justify-center h-10 px-4 rounded-[12px] bg-[#10171f] text-white text-[13px] font-medium hover:bg-[#1a2330] transition-colors">Інвестувати</Link>
+                <Link to="/account" className="flex-1 min-w-0 inline-flex items-center justify-center h-14 px-6 rounded-[14px] bg-white text-[#10171f] text-[15px] font-medium border border-[#10171f] hover:bg-[#f5f5f5] transition-colors whitespace-nowrap">Про фонд</Link>
+                <Link to="/account" className="flex-1 min-w-0 inline-flex items-center justify-center h-14 px-6 rounded-[14px] bg-[#10171f] text-white text-[15px] font-medium hover:bg-[#1a2330] transition-colors whitespace-nowrap">Інвестувати</Link>
               </div>
             </div>
-            <div className="border border-[rgba(19,65,105,0.2)] rounded-[26px] p-6 md:p-8 flex flex-col gap-4 hover:border-[#134169]/40 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 bg-white/60 min-h-0">
+            <div className="border border-[rgba(19,65,105,0.2)] rounded-[26px] p-6 md:p-8 flex flex-col gap-4 hover:border-[#134169]/40 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 bg-white min-h-0">
               <div className="flex flex-col gap-4 flex-1 min-h-0">
                 <span className="text-[11px] font-medium text-[#134169] uppercase tracking-wide">Державні облігації</span>
                 <h3 className="text-[17px] md:text-[20px] font-semibold text-[#10171f]">Цінні папери ОВДП</h3>
@@ -281,8 +317,8 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="pt-2 flex w-full gap-2 shrink-0">
-                <Link to="/account" className="flex-1 min-w-0 inline-flex items-center justify-center h-10 px-4 rounded-[12px] bg-white text-[#10171f] text-[13px] font-medium border border-[#10171f] hover:bg-[#f5f5f5] transition-colors">Про облігації</Link>
-                <Link to="/account" className="flex-1 min-w-0 inline-flex items-center justify-center h-10 px-4 rounded-[12px] bg-[#10171f] text-white text-[13px] font-medium hover:bg-[#1a2330] transition-colors">Інвестувати</Link>
+                <Link to="/account" className="flex-1 min-w-0 inline-flex items-center justify-center h-14 px-6 rounded-[14px] bg-white text-[#10171f] text-[15px] font-medium border border-[#10171f] hover:bg-[#f5f5f5] transition-colors whitespace-nowrap">Про облігації</Link>
+                <Link to="/account" className="flex-1 min-w-0 inline-flex items-center justify-center h-14 px-6 rounded-[14px] bg-[#10171f] text-white text-[15px] font-medium hover:bg-[#1a2330] transition-colors whitespace-nowrap">Інвестувати</Link>
               </div>
             </div>
           </div>
@@ -316,9 +352,171 @@ export default function HomePage() {
                 У вересні 2025 року 5 фондів Inzhur — Inzhur 1001, Inzhur 2001, Inzhur Supermarket, Inzhur Житній та Inzhur Ocean — об'єдналися в новий мегафонд Inzhur REIT. Ми зібрали всі історичні дані про їх дохідність за 3,5 роки. Тисни на кнопку, щоб дізнатися, як компанія Inzhur впоралася з поставленими цілями і підтвердила всі інвестиційні прогнози! 👇
               </p>
             </div>
-            <Link to="/account" className="shrink-0 inline-flex items-center justify-center h-14 px-8 rounded-[12px] bg-[#10171f] text-white text-[14px] font-medium hover:bg-[#1a2330] transition-colors">
+            <Link to="/account" className="shrink-0 inline-flex items-center justify-center h-14 px-8 rounded-[12px] bg-[#10171f] text-white text-[15px] font-medium hover:bg-[#1a2330] transition-colors">
               Дізнатися
             </Link>
+          </div>
+        </section>
+
+        {/* ========== 2a. Як почати заробляти з Inzhur? — 3D stacked carousel (за cssscript.com/stacked-carousel-tailwind) ========== */}
+        <section className={`animate-on-scroll content-section ${SECTION_PY} overflow-visible`}>
+          <div className={MOB_TEXT_INDENT}>
+            <h2 className="text-[28px] md:text-[37px] font-normal text-[#10171f] tracking-[-1px] mb-6">
+              Як почати заробляти з Inzhur?
+            </h2>
+
+            {/* Планшет (md): 2 колонки, 2 рядки. ПК (lg+): 4 картки в 1 ряд. Hover як у пропозицій. */}
+            <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+              {HOW_TO_START_STEPS.map((step, index) => (
+                <div
+                  key={step.num}
+                  className="flex flex-col justify-between rounded-2xl border border-[rgba(19,65,105,0.2)] bg-white/90 backdrop-blur-sm p-5 min-h-[280px] hover:border-[#134169]/40 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 font-e-ukraine"
+                  style={{ fontFamily: '"e-ukraine", sans-serif' }}
+                >
+                  <div className="flex-shrink-0 flex justify-end">
+                    <span className="w-8 h-7 rounded-md bg-[#134169] text-white flex items-center justify-center text-[12px] font-medium">
+                      {step.num}
+                    </span>
+                  </div>
+                  {index === 0 ? (
+                    <div className="flex-shrink-0 flex justify-center overflow-visible -mt-2 mb-2">
+                      <img src="/img/success-registration.png" alt="" className="max-h-[140px] w-auto object-contain" />
+                    </div>
+                  ) : index === 1 ? (
+                    <div className="flex-shrink-0 flex justify-center overflow-visible -mt-2 mb-2">
+                      <img src="/img/slide-02-topup.png" alt="" className="max-h-[140px] w-auto object-contain" />
+                    </div>
+                  ) : index === 2 ? (
+                    <div className="flex-shrink-0 flex justify-center py-2">
+                      <svg className="w-16 h-16 drop-shadow-md" viewBox="0 0 64 64" fill="none" aria-hidden>
+                        <defs>
+                          <linearGradient id="chartGrad" x1="0%" y1="100%" x2="0%" y2="0%"><stop offset="0%" stopColor="#0f3352" /><stop offset="100%" stopColor="#226e91" /></linearGradient>
+                          <filter id="chartShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="1.5" floodColor="#134169" floodOpacity="0.4" /></filter>
+                        </defs>
+                        <path d="M8 48V28l10 8 14-18 18 10v20" fill="url(#chartGrad)" filter="url(#chartShadow)" />
+                        <path d="M8 48h48" stroke="#134169" strokeWidth="2" strokeLinecap="round" />
+                        <rect x="14" y="14" width="36" height="24" rx="2" fill="url(#chartGrad)" fillOpacity="0.9" filter="url(#chartShadow)" />
+                        <path d="M22 26l6 5 10-8 6 4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                      </svg>
+                    </div>
+                  ) : index === 3 ? (
+                    <div className="flex-shrink-0 flex justify-center py-2">
+                      <svg className="w-16 h-16 drop-shadow-md" viewBox="0 0 64 64" fill="none" aria-hidden>
+                        <defs>
+                          <linearGradient id="chatGrad" x1="0%" y1="100%" x2="0%" y2="0%"><stop offset="0%" stopColor="#0f3352" /><stop offset="100%" stopColor="#226e91" /></linearGradient>
+                          <filter id="chatShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="1.5" floodColor="#134169" floodOpacity="0.4" /></filter>
+                        </defs>
+                        <path d="M20 14c-7 0-12 5-12 12v26c0 7 5 12 12 12h24c7 0 12-5 12-12V26c0-7-5-12-12-12H20z" fill="url(#chatGrad)" filter="url(#chatShadow)" />
+                        <rect x="24" y="22" width="16" height="2" rx="1" fill="white" fillOpacity="0.9" />
+                        <rect x="24" y="28" width="12" height="2" rx="1" fill="white" fillOpacity="0.7" />
+                        <rect x="24" y="34" width="14" height="2" rx="1" fill="white" fillOpacity="0.7" />
+                        <circle cx="46" cy="50" r="8" fill="url(#chatGrad)" filter="url(#chatShadow)" />
+                        <path d="M43 50l2 2 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                      </svg>
+                    </div>
+                  ) : null}
+                  <div className="min-w-0 flex-1 flex flex-col justify-end pt-2">
+                    <span className="block text-[15px] lg:text-[16px] font-medium text-[#10171f] leading-tight">{step.title}</span>
+                    <span className="text-[13px] lg:text-[14px] font-light text-[#10171f] leading-normal mt-1">{step.desc}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* На мобі: карусель по центру ширини. На md+ приховано. */}
+            <div className="md:hidden w-full max-w-[320px] mx-auto overflow-visible">
+              <div
+                className="relative w-full select-none touch-pan-y overflow-visible"
+                style={{ touchAction: "pan-y" }}
+                onTouchStart={(e) => { howToStartTouchStart.current = e.targetTouches[0].clientX; }}
+                onTouchEnd={(e) => {
+                  const start = howToStartTouchStart.current;
+                  if (start == null) return;
+                  const end = e.changedTouches[0].clientX;
+                  const diff = start - end;
+                  if (Math.abs(diff) > 50) {
+                    if (diff > 0) setHowToStartStep((i) => (i + 1) % HOW_TO_START_STEPS.length);
+                    else setHowToStartStep((i) => (i - 1 + HOW_TO_START_STEPS.length) % HOW_TO_START_STEPS.length);
+                  }
+                  howToStartTouchStart.current = null;
+                }}
+              >
+              <main
+                id="how-to-start-slider"
+                className="relative w-full h-[360px] sm:h-[380px] md:h-[400px] [perspective:1200px] [transform-style:preserve-3d] overflow-visible rounded-2xl"
+                aria-label="Кроки для початку заробітку з Inzhur"
+              >
+                {HOW_TO_START_STEPS.map((step, index) => {
+                  const numSlides = HOW_TO_START_STEPS.length;
+                  let diff = index - howToStartStep;
+                  if (diff > numSlides / 2) diff -= numSlides;
+                  else if (diff < -numSlides / 2) diff += numSlides;
+                  let status: "active" | "next" | "prev" | "background-next" | "background-prev" | "hidden" = "hidden";
+                  if (diff === 0) status = "active";
+                  else if (diff === 1) status = "next";
+                  else if (diff === -1) status = howToStartStep === 0 ? "hidden" : "prev";
+                  else if (diff === 2) status = "background-next";
+                  else if (diff === -2) status = howToStartStep === 0 ? "hidden" : "background-prev";
+
+                  return (
+                    <article
+                      key={step.num}
+                      className="how-to-start-slide absolute top-0 h-full flex flex-col justify-between pt-4 pb-4 px-4 md:pt-5 md:pb-5 md:px-5 rounded-2xl border border-white/50 bg-white/70 backdrop-blur-xl shadow-[0_8px_32px_rgba(19,65,105,0.08),inset_0_1px_0_rgba(255,255,255,0.6)] cursor-pointer overflow-visible font-e-ukraine"
+                      data-status={status}
+                      onClick={() => status !== "active" && setHowToStartStep(index)}
+                      role="button"
+                      tabIndex={status === "hidden" ? -1 : 0}
+                      onKeyDown={(e) => status !== "active" && (e.key === "Enter" || e.key === " ") && (e.preventDefault(), setHowToStartStep(index))}
+                      aria-label={status === "active" ? `Крок ${index + 1}, активний` : `Перейти до кроку ${index + 1}`}
+                    >
+                      <div className="flex-shrink-0 flex justify-end">
+                        <span className="w-8 h-7 rounded-md bg-[#134169] text-white flex items-center justify-center text-[12px] font-medium font-e-ukraine" style={{ fontFamily: '"e-ukraine", sans-serif' }}>
+                          {step.num}
+                        </span>
+                      </div>
+                      {index === 0 ? (
+                        <div className="flex-shrink-0 flex justify-center overflow-visible -mt-[calc(2.5rem+3px)] md:-mt-[calc(3rem+3px)]">
+                          <img src="/img/success-registration.png" alt="" className="max-h-[266px] md:max-h-[304px] w-auto object-contain" />
+                        </div>
+                      ) : index === 1 ? (
+                        <div className="flex-shrink-0 flex justify-center overflow-visible -mt-[calc(2.5rem+3px)] md:-mt-[calc(3rem+3px)]">
+                          <img src="/img/slide-02-topup.png" alt="" className="max-h-[266px] md:max-h-[304px] w-auto object-contain" />
+                        </div>
+                      ) : index === 2 ? (
+                        <div className="flex-shrink-0 flex justify-center py-4">
+                          <svg className="w-20 h-20 md:w-24 md:h-24 text-[#134169]/90" viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                            <path d="M8 48V32l12 8 16-20 20 12v24" />
+                            <path d="M8 48h48" />
+                            <rect x="12" y="12" width="40" height="28" rx="2" />
+                            <path d="M20 24l8 6 12-10 8 6" />
+                          </svg>
+                        </div>
+                      ) : index === 3 ? (
+                        <div className="flex-shrink-0 flex justify-center py-4">
+                          <svg className="w-20 h-20 md:w-24 md:h-24 text-[#134169]/90" viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                            <path d="M20 16c-6 0-10 4-10 10v28c0 6 4 10 10 10h24c6 0 10-4 10-10V26c0-6-4-10-10-10" />
+                            <path d="M20 26h24M20 34h18M20 42h14" />
+                            <circle cx="44" cy="52" r="6" />
+                            <path d="M42 50l4 4 6-6" />
+                          </svg>
+                        </div>
+                      ) : null}
+                      <div className="min-w-0 flex-1 flex flex-col justify-end pt-1 font-e-ukraine" style={{ fontFamily: '"e-ukraine", sans-serif' }}>
+                        <span className="block text-[16px] md:text-[18px] font-medium text-[#10171f] leading-tight">{step.title}</span>
+                        <span className="text-[14px] md:text-[16px] font-light text-[#10171f] leading-normal mt-1">{step.desc}</span>
+                      </div>
+                    </article>
+                  );
+                })}
+              </main>
+              </div>
+            </div>
+            <div className="mt-8">
+              <Link to="/account" className="inline-flex items-center gap-2 h-12 px-6 rounded-[12px] bg-[#134169] text-white text-[14px] font-medium hover:bg-[#0f3352] transition-colors">
+                Почати зараз
+                <span aria-hidden>→</span>
+              </Link>
+            </div>
           </div>
         </section>
 
@@ -375,46 +573,6 @@ export default function HomePage() {
               </p>
             </div>
           </div>
-          {/* Як почати заробляти з Inzhur? — 4 кроки (як на inzhur.reit) */}
-          <div className="mt-12 pt-10 border-t border-[rgba(19,65,105,0.15)]">
-            <h3 className="text-[20px] md:text-[24px] font-normal text-[#10171f] mb-6">Як почати заробляти з Inzhur?</h3>
-            <ol className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 list-none pl-0">
-              <li className="flex gap-4">
-                <span className="flex-shrink-0 w-10 h-10 rounded-full bg-[#134169] text-white flex items-center justify-center text-[14px] font-medium">01</span>
-                <div>
-                  <span className="block text-[15px] font-medium text-[#10171f] mb-1">Зареєструйся в кабінеті інвестора Inzhur</span>
-                  <span className="text-[13px] font-light text-[#10171f]">та безкоштовно відкрий брокерський рахунок</span>
-                </div>
-              </li>
-              <li className="flex gap-4">
-                <span className="flex-shrink-0 w-10 h-10 rounded-full bg-[#134169] text-white flex items-center justify-center text-[14px] font-medium">02</span>
-                <div>
-                  <span className="block text-[15px] font-medium text-[#10171f] mb-1">Поповни брокерський рахунок</span>
-                  <span className="text-[13px] font-light text-[#10171f]">по IBAN на необхідну суму та купуй сертифікати фонду</span>
-                </div>
-              </li>
-              <li className="flex gap-4">
-                <span className="flex-shrink-0 w-10 h-10 rounded-full bg-[#134169] text-white flex items-center justify-center text-[14px] font-medium">03</span>
-                <div>
-                  <span className="block text-[15px] font-medium text-[#10171f] mb-1">Заробляй на щомісячних дивідендах</span>
-                  <span className="text-[13px] font-light text-[#10171f]">та зростанні вартості активів фондів (капіталізація)</span>
-                </div>
-              </li>
-              <li className="flex gap-4">
-                <span className="flex-shrink-0 w-10 h-10 rounded-full bg-[#134169] text-white flex items-center justify-center text-[14px] font-medium">04</span>
-                <div>
-                  <span className="block text-[15px] font-medium text-[#10171f] mb-1">Додатково: закритий Telegram-чат</span>
-                  <span className="text-[13px] font-light text-[#10171f]">одразу після реєстрації — особисте запрошення в кабінеті (21+ тисяч реальних інвесторів)</span>
-                </div>
-              </li>
-            </ol>
-            <div className="mt-8">
-                <Link to="/account" className="inline-flex items-center gap-2 h-12 px-6 rounded-[12px] bg-[#134169] text-white text-[14px] font-medium hover:bg-[#0f3352] transition-colors">
-                  Почати зараз
-                  <span aria-hidden>→</span>
-                </Link>
-              </div>
-            </div>
             {/* FAQ — розгортані питання */}
             <div className="mt-12 pt-10 border-t border-[rgba(0,0,0,0.07)]">
             <div className="rounded-[24px] border border-[rgba(0,0,0,0.07)] bg-white overflow-hidden">

@@ -1,15 +1,28 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Header from "./Header";
 import DashboardHeader from "./DashboardHeader";
 import Footer from "./Footer";
 import { useHomeBg, DEFAULT_HOME_BG } from "../context/HomeBgContext";
 
+const SCROLL_SHOW_THRESHOLD = 0.2; // показувати стрілку після 20% прокрутки
+
 export default function Layout() {
   const location = useLocation();
+  const [showScrollTop, setShowScrollTop] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      setShowScrollTop(maxScroll > 0 && window.scrollY >= maxScroll * SCROLL_SHOW_THRESHOLD);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, [location.pathname]);
   const homeBgCtx = useHomeBg();
   const isDashboard = location.pathname.startsWith("/dashboard");
@@ -50,6 +63,20 @@ export default function Layout() {
       >
         <Outlet />
       </main>
+
+      {/* Стрілка «вгору»: тільки на мобільному, з’являється після 20% прокрутки */}
+      {showScrollTop && (
+        <button
+          type="button"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="header:hidden fixed bottom-6 left-6 z-[998] w-[43px] h-[43px] rounded-full bg-[#0f1a22] flex items-center justify-center text-white shadow-lg hover:bg-[#151f28] active:scale-95 transition-all duration-200"
+          aria-label="Прокрутити вгору"
+        >
+          <svg className="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="M12 19V5M5 12l7-7 7 7" />
+          </svg>
+        </button>
+      )}
 
       {!isDashboardOrAccount && <Footer />}
     </div>

@@ -123,3 +123,50 @@
 .cta-gradient-bg {
   background: linear-gradient(135deg, #f8fedd 0%, #fee8dd 100%);
 }
+
+/* =========================================
+   3D Stacked Carousel — «Як почати заробляти» (за cssscript.com/stacked-carousel-tailwind)
+   Картки вужчі за контейнер (left:50% + width) і центровані через translateX(-50%),
+   щоб справа залишалось «вікно» для peek наступного слайда.
+   ========================================= */
+.how-to-start-slide {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transition: all 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+  will-change: transform, opacity;
+  left: 50%;
+  width: 84%;
+  font-family: "e-ukraine", sans-serif;
+}
+.how-to-start-slide[data-status="active"] {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0%) translateZ(0) scale(1);
+  z-index: 10;
+}
+.how-to-start-slide[data-status="next"] {
+  opacity: 0.85;
+  /* -50% центрування + 18% вправо = peek справа */
+  transform: translateX(-32%) translateY(4%) translateZ(-50px) scale(0.92);
+  z-index: 9;
+}
+.how-to-start-slide[data-status="prev"] {
+  opacity: 0.85;
+  transform: translateX(-68%) translateY(4%) translateZ(-50px) scale(0.92);
+  z-index: 9;
+}
+.how-to-start-slide[data-status="background-next"] {
+  opacity: 0.6;
+  transform: translateX(-20%) translateY(8%) translateZ(-100px) scale(0.84);
+  z-index: 8;
+}
+.how-to-start-slide[data-status="background-prev"] {
+  opacity: 0.6;
+  transform: translateX(-80%) translateY(8%) translateZ(-100px) scale(0.84);
+  z-index: 8;
+}
+.how-to-start-slide[data-status="hidden"] {
+  opacity: 0;
+  transform: translateX(-50%) translateY(12%) translateZ(-150px) scale(0.76);
+  z-index: 1;
+  pointer-events: none;
+}
