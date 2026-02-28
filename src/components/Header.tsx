@@ -27,6 +27,8 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [desktopHeaderVisible, setDesktopHeaderVisible] = useState(true);
   const lastScrollY = useRef(0);
+  const scrollDownStartY = useRef(0);
+  const wasScrollingDown = useRef(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [isMobileView, setIsMobileView] = useState(() => typeof window !== "undefined" && window.innerWidth <= HEADER_BREAKPOINT);
@@ -52,22 +54,29 @@ export default function Header() {
     { label: "Девелопер Inzhur BUD", path: "/developer" },
   ];
 
-  // Desktop header: один колір фону (як на сторінці /account або за замовчуванням), тінь тільки при скролі, верхній відступ тільки при scroll = 0
+  // Desktop header: один колір фону; лейаут однаковий при scroll 0 і при скролі (без зміни padding/width), щоб не було зсуву елементів
   const desktopBarBg = isAccount ? "bg-[#eef2f5]" : "bg-[#e2ecf1]";
-  const desktopTopPad = scrolled ? "pt-0" : "pt-2";
   const desktopShadow = "shadow-none";
 
   useEffect(() => {
     const onScroll = () => {
       const y = window.scrollY;
       setScrolled(y > 20);
-      // Десктоп: ховати при скролі вниз, показувати при скролі вгору або біля верху сторінки
+      const threshold = window.innerHeight * 0.025; // ~2.5% висоти екрану — хедер залишається видимим трохи довше
       if (y <= 30) {
         setDesktopHeaderVisible(true);
+        wasScrollingDown.current = false;
       } else if (y > lastScrollY.current) {
-        setDesktopHeaderVisible(false);
+        if (!wasScrollingDown.current) {
+          scrollDownStartY.current = lastScrollY.current;
+          wasScrollingDown.current = true;
+        }
+        if (y - scrollDownStartY.current >= threshold) {
+          setDesktopHeaderVisible(false);
+        }
       } else {
         setDesktopHeaderVisible(true);
+        wasScrollingDown.current = false;
       }
       lastScrollY.current = y;
     };
@@ -221,7 +230,7 @@ export default function Header() {
       {/* Мобільний хедер: при скролі ближче до верху */}
       <header className={`header:hidden fixed left-0 right-0 z-[999] flex justify-center px-4 transition-[top] duration-200 ${scrolled ? "top-1" : "top-4"}`}>
         <div
-          className={`w-full max-w-[1280px] h-[72px] bg-[#e2ecf1] rounded-[24px] flex items-center justify-between pl-8 pr-4 hero:pl-6 hero:pr-6 md:px-6 transition-all duration-200 ${
+          className={`w-full max-w-[1280px] h-[72px] bg-[#e2ecf1] rounded-[24px] flex items-center justify-between pl-4 pr-4 hero:pl-6 hero:pr-6 md:px-6 transition-all duration-200 ${
             scrolled ? "shadow-md border border-[rgba(0,0,0,0.08)]" : "shadow-none border border-transparent"
           }`}
         >
@@ -263,9 +272,9 @@ export default function Header() {
       </header>
 
       {/* Десктопний хедер: при скролі вниз ховається, при скролі вгору — з’являється */}
-      <header className={`hidden header:flex fixed top-0 left-0 w-full justify-center z-[999] transition-[padding,transform] duration-300 ease-out ${desktopTopPad} ${desktopBarBg} ${desktopHeaderVisible ? "translate-y-0" : "-translate-y-full"}`}>
-        <div className={`w-full min-h-[64px] h-[64px] relative overflow-visible transition-shadow duration-200 ${desktopBarBg} ${desktopShadow} ${scrolled ? "max-w-none mx-0" : "max-w-[1584px] mx-4"}`}>
-          <div className={`w-full h-full px-6 flex items-center ${DESKTOP_HEADER_GAP.gap} ${scrolled ? "max-w-[1584px] mx-auto" : ""}`}>
+      <header className={`hidden header:flex fixed top-0 left-0 w-full justify-center z-[999] transition-[transform] duration-400 ease-in-out pt-0 ${desktopBarBg} ${desktopHeaderVisible ? "translate-y-0" : "-translate-y-full"} will-change-transform`} style={{ backfaceVisibility: "hidden" }}>
+        <div className={`w-full min-h-[64px] h-[64px] relative overflow-visible transition-shadow duration-200 ${desktopBarBg} ${desktopShadow} max-w-[1584px] mx-auto shadow-[0_1px_0_0_rgba(0,0,0,0.04)]`}>
+          <div className={`w-full h-full px-6 flex items-center ${DESKTOP_HEADER_GAP.gap}`}>
             {/* Зона логотипу: DESKTOP_HEADER_GAP задає проміжок між лого і посиланнями та між посиланнями */}
             <div className={`w-auto min-w-0 flex justify-start items-center shrink-0 ${DESKTOP_HEADER_GAP.mr}`}>
               <a
