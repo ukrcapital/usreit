@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useHomeBg, mixHex } from "../context/HomeBgContext";
+import heroBg from "../img/1st_block_backgound.webp";
 import "./index.css";
 
 const CONTENT_MAX = "max-w-[1280px]";
@@ -91,7 +92,7 @@ export default function HomePage() {
             <div className="hero-first-block-bg absolute inset-0 z-[3] hidden header:block" aria-hidden />
             {/* Декоративний hero-bg: при ≥1201px ховаємо, щоб була видна мапа (1st_block_backgound) */}
             <div className="absolute inset-y-[-50px] left-1/2 -translate-x-1/2 hero:left-0 hero:translate-x-0 hero:w-full overflow-hidden z-[4] header:hidden" aria-hidden>
-              <div className="w-[1701px] max-w-none hero:w-full h-[480px] hero:h-[800px] bg-[url(../../../../sitesucker_inzhur/www.inzhur.reit/_nuxt/hero-bg.BKlVJJp9.png)] bg-cover bg-no-repeat relative z-[5]" />
+              <div className="w-[1701px] max-w-none hero:w-full h-[480px] hero:h-[800px] bg-cover bg-no-repeat relative z-[5]" style={{ backgroundImage: `url(${heroBg})` }} />
             </div>
             <div className="relative z-[6] max-w-[960px] pt-[12px] hero:pt-[18px] pl-0 hero:pl-2">
               <h1 className="text-[32px] hero:text-[62px] font-light leading-[1.45] hero:leading-[1.2] text-[#10171f] tracking-[-1.5px] hero:tracking-[-2.64px]">
