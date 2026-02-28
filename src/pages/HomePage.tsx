@@ -102,19 +102,19 @@ export default function HomePage() {
       {/* Єдиний контейнер для центрування: як на оригіналі (content-grid з відступами) */}
       <div className={`w-full ${CONTENT_MAX} mx-auto ${CONTENT_PX} relative z-[2] mt-0`}>
         
-        {/* ========== 1. Hero (Intro) — відступи як на референсі: більше повітря між заголовком і плашкою, щедрий padding у плашці ========== */}
-        <section className={`content-section ${SECTION_PY} hero:pt-20 hero:pb-28 first:pt-12 pb-6 md:pb-16 header:pb-12`}>
-          <div className="w-full min-h-[480px] hero:min-h-[720px] bg-transparent relative overflow-hidden">
-            {/* Фон (мапа): тільки на десктопі ≥1201px */}
+        {/* ========== 1. Hero (Intro) — на десктопі фон на всю ширину екрана, контент з тим самим відступом зліва ========== */}
+        <section className={`content-section ${SECTION_PY} hero:pt-20 hero:pb-28 first:pt-12 pb-6 md:pb-16 header:pb-12 header:w-screen header:relative header:left-1/2 header:-translate-x-1/2`}>
+          <div className="w-full min-h-[480px] hero:min-h-[720px] bg-transparent relative overflow-hidden header:overflow-visible">
+            {/* Фон (мапа): на десктопі до країв екрана, зліва відступ як у контенту */}
             <div className="hero-first-block-bg absolute inset-0 z-[3] hidden header:block" aria-hidden />
-            <div className="relative z-[6] w-full pt-[12px] hero:pt-[18px] pl-0 hero:pl-2">
+            <div className="relative z-[6] w-full pt-[12px] hero:pt-[18px] pl-0 hero:pl-2 header:max-w-[1584px] header:mx-auto header:px-6">
               <div className={MOB_TEXT_INDENT}>
                 <h1 className="text-[32px] hero:text-[62px] font-normal hero:font-light leading-[1.45] hero:leading-[1.2] text-[#10171f] tracking-[-1.5px] hero:tracking-[-2.64px]">
                   Твої інвестиції{' '}
                   <span className="hero:block">у велику</span>{' '}
                   <span className="hero:block">нерухомість</span>
                 </h1>
-              </div>
+          </div>
               {/* Від 0 до 763px плашка на всю ширину; від 764px — ширина ~40–45% як на референсі; внутрішні відступи як на референсі */}
               <div className="w-full max-w-none hero:max-w-[45vw] header:max-w-[560px] bg-[#134169] rounded-[32px] mt-10 hero:mt-12 p-8 hero:p-10">
                 <h2 className="text-[18px] hero:text-[20px] text-white tracking-[-0.8px] mb-5">
@@ -421,54 +421,66 @@ export default function HomePage() {
               <details className="group border-b border-[rgba(0,0,0,0.07)] last:border-0">
                 <summary className="list-none flex items-center justify-between gap-4 py-4 px-5 cursor-pointer text-[14px] font-normal text-[#10171f] hover:bg-[rgba(0,0,0,0.02)]">
                   <span>Які інвестиційні фонди є в Inzhur?</span>
-                  <span className="text-[#10171f] transition-transform group-open:rotate-180" aria-hidden>▼</span>
+                  <span className="inline-flex text-[#10171f] transition-transform group-open:rotate-180" aria-hidden>
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+                  </span>
                 </summary>
-                <div className="px-5 pb-6 text-[14px] font-light text-[#10171f] leading-relaxed">
+                <div className="px-5 pt-3 pb-6 text-[14px] font-light text-[#10171f] leading-relaxed">
                   Inzhur REIT (нерухомість), Inzhur Energy (енергетика) та ОВДП (державні облігації). Деталі — на сторінці пропозицій та в довіднику.
                 </div>
               </details>
               <details className="group border-b border-[rgba(0,0,0,0.07)] last:border-0">
                 <summary className="list-none flex items-center justify-between gap-4 py-4 px-5 cursor-pointer text-[14px] font-normal text-[#10171f] hover:bg-[rgba(0,0,0,0.02)]">
                   <span>Інвестування можливе тільки в гривні? Чи можу я провести оплату в USD? Куди та в якій валюті здійснюється виплата дивідендів?</span>
-                  <span className="text-[#10171f] transition-transform group-open:rotate-180 shrink-0" aria-hidden>▼</span>
+                  <span className="inline-flex shrink-0 text-[#10171f] transition-transform group-open:rotate-180" aria-hidden>
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+                  </span>
                 </summary>
-                <div className="px-5 pb-6 text-[14px] font-light text-[#10171f] leading-relaxed">
+                <div className="px-5 pt-3 pb-6 text-[14px] font-light text-[#10171f] leading-relaxed">
                   Інвестування та виплати — у гривні. Оплата по IBAN у UAH. Дивіденди зараховуються на картку в гривнях.
                 </div>
               </details>
               <details className="group border-b border-[rgba(0,0,0,0.07)] last:border-0">
                 <summary className="list-none flex items-center justify-between gap-4 py-4 px-5 cursor-pointer text-[14px] font-normal text-[#10171f] hover:bg-[rgba(0,0,0,0.02)]">
                   <span>Що я купую та які документи отримаю після оформлення?</span>
-                  <span className="text-[#10171f] transition-transform group-open:rotate-180 shrink-0" aria-hidden>▼</span>
+                  <span className="inline-flex shrink-0 text-[#10171f] transition-transform group-open:rotate-180" aria-hidden>
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+                  </span>
                 </summary>
-                <div className="px-5 pb-6 text-[14px] font-light text-[#10171f] leading-relaxed">
+                <div className="px-5 pt-3 pb-6 text-[14px] font-light text-[#10171f] leading-relaxed">
                   Ти купуєш інвестиційні сертифікати фонду. У кабінеті зберігаються виписки та документи; можна завантажити їх у зручний час.
                 </div>
               </details>
               <details className="group border-b border-[rgba(0,0,0,0.07)] last:border-0">
                 <summary className="list-none flex items-center justify-between gap-4 py-4 px-5 cursor-pointer text-[14px] font-normal text-[#10171f] hover:bg-[rgba(0,0,0,0.02)]">
                   <span>Як оподатковується мій дохід?</span>
-                  <span className="text-[#10171f] transition-transform group-open:rotate-180 shrink-0" aria-hidden>▼</span>
+                  <span className="inline-flex shrink-0 text-[#10171f] transition-transform group-open:rotate-180" aria-hidden>
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+                  </span>
                 </summary>
-                <div className="px-5 pb-6 text-[14px] font-light text-[#10171f] leading-relaxed">
+                <div className="px-5 pt-3 pb-6 text-[14px] font-light text-[#10171f] leading-relaxed">
                   Податки та комісії вже враховані: Inzhur перераховує прибуток на картки співвласників після сплати всього передбаченого законодавством.
                 </div>
               </details>
               <details className="group border-b border-[rgba(0,0,0,0.07)] last:border-0">
                 <summary className="list-none flex items-center justify-between gap-4 py-4 px-5 cursor-pointer text-[14px] font-normal text-[#10171f] hover:bg-[rgba(0,0,0,0.02)]">
                   <span>Які є гарантії для співвласника? Як захищені інтереси?</span>
-                  <span className="text-[#10171f] transition-transform group-open:rotate-180 shrink-0" aria-hidden>▼</span>
+                  <span className="inline-flex shrink-0 text-[#10171f] transition-transform group-open:rotate-180" aria-hidden>
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+                  </span>
                 </summary>
-                <div className="px-5 pb-6 text-[14px] font-light text-[#10171f] leading-relaxed">
+                <div className="px-5 pt-3 pb-6 text-[14px] font-light text-[#10171f] leading-relaxed">
                   Діяльність регулюється НКЦПФР та Законом про ІСІ. Майно фонду — у спільній власності; права захищені договорами та законодавством.
                 </div>
               </details>
               <details className="group last:border-0">
                 <summary className="list-none flex items-center justify-between gap-4 py-4 px-5 cursor-pointer text-[14px] font-normal text-[#10171f] hover:bg-[rgba(0,0,0,0.02)]">
                   <span>Як продати сертифікати та вийти з проєкту?</span>
-                  <span className="text-[#10171f] transition-transform group-open:rotate-180 shrink-0" aria-hidden>▼</span>
+                  <span className="inline-flex shrink-0 text-[#10171f] transition-transform group-open:rotate-180" aria-hidden>
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
+                  </span>
                 </summary>
-                <div className="px-5 pb-6 text-[14px] font-light text-[#10171f] leading-relaxed">
+                <div className="px-5 pt-3 pb-6 text-[14px] font-light text-[#10171f] leading-relaxed">
                   В кабінеті у кожного фонду є кнопка «Продати»: подаєш заявку, за кілька годин робочого дня фонд викупить сертифікати за актуальною ціною та зарахує кошти.
                 </div>
               </details>
@@ -583,15 +595,16 @@ export default function HomePage() {
               Тут можна ознайомитися з усіма документами, що стосуються діяльності Inzhur — і знаходяться у відкритому доступі.
             </p>
           </div>
-          <ul className="space-y-0 mb-6">
-            {[
+          {(() => {
+            const docs = [
               { title: 'Виписка Інжур 01.03.2024', href: '#' },
               { title: 'Інформація про надавача фінансових послуг', href: '#' },
               { title: 'Фінансова звітність та аудиторський висновок Inzhur від 30.12.2024', sub: 'ще 3 редакції', href: '#' },
               { title: 'Відомості про вартість чистих активів та перелік ІСІ від 30.12.2024', sub: 'ще 2 редакції', href: '#' },
               { title: 'Призначення суб\'єкта аудиторської діяльності від 05.10.2025', sub: 'ще 5 редакцій', href: '#' },
               { title: 'Схематичне зображення від 31.12.2025', sub: 'ще 2 редакції', href: '#' },
-            ].map((doc, i) => (
+            ];
+            const docItem = (doc: { title: string; sub?: string; href: string }, i: number) => (
               <li key={i} className="border-b border-[#dee0e0] last:border-0">
                 <a href={doc.href} className="flex items-center justify-between gap-4 py-4 px-6 text-[14px] font-normal text-[#10171f] hover:bg-[#f5f5f5] transition-colors group">
                   <span className="flex flex-wrap items-center gap-2 min-w-0 flex-1">
@@ -601,8 +614,16 @@ export default function HomePage() {
                   <span className="w-9 h-9 shrink-0 rounded-full border border-[#10171f] flex items-center justify-center text-[12px] group-hover:bg-[#10171f] group-hover:text-white transition-colors" aria-hidden>↗</span>
                 </a>
               </li>
-            ))}
-          </ul>
+            );
+            const col1 = docs.slice(0, 3);
+            const col2 = docs.slice(3, 6);
+            return (
+              <div className="grid grid-cols-1 md:grid-cols-2 md:gap-x-10 mb-6">
+                <ul className="space-y-0">{col1.map((doc, i) => docItem(doc, i))}</ul>
+                <ul className="space-y-0">{col2.map((doc, i) => docItem(doc, i + 3))}</ul>
+              </div>
+            );
+          })()}
           <div className="rounded-[12px] bg-[rgba(222,224,224,0.2)] py-4 px-6 mb-8">
             <p className="text-[14px] font-normal text-[#10171f]">
               Застереження! Результати діяльності фонду у минулому не є гарантією доходів в майбутньому.
@@ -666,9 +687,9 @@ export default function HomePage() {
               <a href="tel:+380442907685" className="text-[20px] md:text-[24px] font-light text-[#10171f] hover:text-[#134169] transition-colors">
                   +38 044 290 76 85
                 </a>
-              </div>
             </div>
           </div>
+        </div>
         </section>
 
         {/* ========== 7. CTA — Готові почати? ========== */}
@@ -689,7 +710,7 @@ export default function HomePage() {
                 <span className="text-white/70">— консультація</span>
               </a>
             </div>
-          </div>
+        </div>
         </section>
       </div>
     </div>

@@ -26,7 +26,7 @@ export default function Header() {
   const [isMobileView, setIsMobileView] = useState(() => typeof window !== "undefined" && window.innerWidth <= HEADER_BREAKPOINT);
   const isHome = location.pathname === "/";
   const isUsSite = location.pathname.startsWith("/us");
-  const isAccount = location.pathname === "/account" || location.pathname === "/login";
+  const isAccount = location.pathname === "/account" || location.pathname === "/login" || location.pathname === "/reg";
 
   useEffect(() => {
     const mql = window.matchMedia(`(max-width: ${HEADER_BREAKPOINT}px)`);
@@ -205,7 +205,7 @@ export default function Header() {
           }`}
         >
           <a href="/" className="flex items-center gap-2 shrink-0">
-            <div className="w-10 h-10 rounded-[12px] border-2 border-black flex items-center justify-center overflow-hidden bg-white">
+            <div className="hidden xs:flex w-10 h-10 rounded-[12px] border-2 border-black items-center justify-center overflow-hidden bg-white">
               <span className="text-[#10171f] text-sm font-medium leading-none select-none" aria-hidden>꩜</span>
             </div>
             <span className="font-sans text-[#10171f] text-[15px] font-semibold tracking-tight">INZHYR</span>
@@ -213,14 +213,14 @@ export default function Header() {
           <div className="flex items-center gap-2 shrink-0">
             <Link
               to={isUsSite ? "/" : "/us"}
-              className="w-10 h-10 rounded-[12px] flex items-center justify-center border border-[#10171f] text-[#10171f] hover:bg-[#10171f] hover:text-white transition-colors text-[13px] font-semibold"
+              className="hidden xs:flex w-10 h-10 rounded-[12px] items-center justify-center border border-[#10171f] text-[#10171f] hover:bg-[#10171f] hover:text-white transition-colors text-[13px] font-semibold"
               aria-label={isUsSite ? "Українська" : "English"}
             >
               {isUsSite ? "UA" : "US"}
             </Link>
             <Link
               to={isLoggedIn ? "/dashboard" : "/account"}
-              className="w-10 h-10 rounded-[12px] flex items-center justify-center border border-[#10171f] text-[#10171f] hover:bg-[#10171f] hover:text-white transition-colors"
+              className="hidden xs:flex w-10 h-10 rounded-[12px] items-center justify-center border border-[#10171f] text-[#10171f] hover:bg-[#10171f] hover:text-white transition-colors"
               aria-label={isLoggedIn ? "Кабінет" : "Вхід"}
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">

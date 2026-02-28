@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Header from "./Header";
 import DashboardHeader from "./DashboardHeader";
@@ -7,11 +7,15 @@ import { useHomeBg, DEFAULT_HOME_BG } from "../context/HomeBgContext";
 
 export default function Layout() {
   const location = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
   const homeBgCtx = useHomeBg();
   const isDashboard = location.pathname.startsWith("/dashboard");
   const isHome = location.pathname === "/";
   const isUsHome = location.pathname === "/us";
-  const isAccount = location.pathname === "/account" || location.pathname === "/login";
+  const isAccount = location.pathname === "/account" || location.pathname === "/login" || location.pathname === "/reg";
   const useHomeLikeBg = isHome || isUsHome;
 
   const isDashboardOrAccount = isDashboard || isAccount;

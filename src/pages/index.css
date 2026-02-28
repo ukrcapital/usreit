@@ -71,13 +71,13 @@
   }
 }
 
-/* Фон 1-го блоку (мапа): тільки при ширині ≥ 1201px */
+/* Фон 1-го блоку (мапа): при ≥1201px на всю ширину екрана, зліва відступ як у контенту */
 @media (min-width: 1201px) {
   .hero-first-block-bg {
     background-image: url('../img/1st_block_backgound.webp');
     background-size: cover;
     background-repeat: no-repeat;
-    background-position: center;
+    background-position: left center;
   }
 }
 

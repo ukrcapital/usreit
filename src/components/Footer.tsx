@@ -1,8 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-const DIVIDER_CLASS = "w-full h-px bg-white/20";
-
 export default function Footer() {
   return (
     <footer className="w-full flex justify-center bg-[#1A1D20] mt-0 relative z-[1]">
@@ -11,15 +9,18 @@ export default function Footer() {
         <div className="flex flex-col md:hidden">
           {/* 1. Лого + слоган */}
           <div className="flex gap-4 items-start">
-            <div className="w-14 h-14 rounded-full border-2 border-white/40 flex items-center justify-center shrink-0 bg-white overflow-hidden">
-              <span className="text-[#1A1D20] text-2xl font-medium leading-none select-none" aria-hidden>꩜</span>
+            <Link to="/" className="flex items-center gap-2 shrink-0">
+              <div className="w-10 h-10 rounded-[12px] border-2 border-white/40 flex items-center justify-center overflow-hidden bg-white">
+                <span className="text-[#10171f] text-sm font-medium leading-none select-none" aria-hidden>꩜</span>
+              </div>
+              <span className="font-sans text-white text-[15px] font-semibold tracking-tight">INZHYR</span>
+            </Link>
+            <div className="text-[17px] md:text-[20px] font-normal leading-[1.35] text-white pt-1">
+              <span className="block">Прибутково, пасивно, прозоро.</span>
+              <span className="block">А що ще треба? :)</span>
             </div>
-            <p className="text-[17px] md:text-[20px] font-normal leading-[1.35] text-white pt-1">
-              Прибутково, пасивно, прозоро. А що ще треба? :)
-            </p>
           </div>
 
-          <div className={DIVIDER_CLASS} aria-hidden />
           <div className="py-8" />
 
           {/* 2. Ми в соцмережах */}
@@ -39,14 +40,12 @@ export default function Footer() {
             </a>
           </div>
 
-          <div className={DIVIDER_CLASS} aria-hidden />
           <div className="py-8" />
 
           {/* 3. Адреса та телефон */}
           <span className="block text-[12px] text-white/90">вул.Жилянська, буд. 48,50А (БЦ «Прайм»), 7 поверх</span>
           <a href="tel:+380442907685" className="block text-[12px] text-white/90 mt-2 hover:underline">+38 044 290 76 85</a>
 
-          <div className={DIVIDER_CLASS} aria-hidden />
           <div className="py-8" />
 
           {/* 4. Копірайт та ліцензія */}
@@ -72,8 +71,7 @@ export default function Footer() {
                 </span>
               </div>
 
-              <div className={DIVIDER_CLASS} aria-hidden />
-              <div className="mt-8 mb-8" />
+              <div className="mt-8" />
 
               <div className="space-y-6">
                 <div className="flex flex-wrap items-center gap-6 text-[16px] font-medium text-white">
@@ -98,13 +96,15 @@ export default function Footer() {
               </div>
             </div>
 
-            <div className="w-full lg:w-[340px] shrink-0">
-              <div className="w-[104px] h-[104px] rounded-[20px] border-2 border-white/30 flex items-center justify-center overflow-hidden bg-white">
-                <span className="text-[#1A1D20] text-5xl font-medium leading-none select-none" aria-hidden>꩜</span>
-              </div>
+            <div className="w-full lg:w-[340px] shrink-0 flex flex-col">
+              <Link to="/" className="shrink-0 flex items-center gap-2">
+                <div className="w-[60px] h-[60px] rounded-[12px] border-2 border-white/40 flex items-center justify-center overflow-hidden bg-white">
+                  <span className="text-[#10171f] text-2xl font-semibold leading-none select-none" aria-hidden>꩜</span>
+                </div>
+                <span className="font-sans text-white text-lg font-semibold tracking-tight">INZHYR</span>
+              </Link>
 
-              <div className={DIVIDER_CLASS} aria-hidden />
-              <div className="mt-8 mb-8" />
+              <div className="mt-8" />
 
               <span className="block text-[14px] font-medium text-white">Ми в соцмережах</span>
               <div className="flex gap-6 mt-4">
@@ -114,15 +114,13 @@ export default function Footer() {
                 <a href="#" className="text-white hover:opacity-70"><svg className="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M22.67 0H1.33C.6 0 0 .6 0 1.33v21.34C0 23.4.6 24 1.33 24h11.49v-9.28H9.69v-3.62h3.13V8.41c0-3.1 1.89-4.8 4.66-4.8 1.33 0 2.46.1 2.8.14v3.24h-1.92c-1.5 0-1.8.71-1.8 1.76v2.31h3.6l-.47 3.62h-3.13V24h6.11c.73 0 1.33-.6 1.33-1.33V1.33C24 .6 23.4 0 22.67 0z"/></svg></a>
               </div>
 
-              <div className={DIVIDER_CLASS} aria-hidden />
-              <div className="mt-8 mb-8" />
+              <div className="mt-8" />
 
               <span className="block text-[12px] text-white/90">вул.Жилянська, буд. 48,50А (БЦ «Прайм»), 7 поверх</span>
               <a href="tel:+380442907685" className="block text-[12px] text-white/90 mt-2 hover:underline">+38 044 290 76 85</a>
             </div>
           </div>
 
-          <div className={DIVIDER_CLASS} aria-hidden />
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mt-10 mb-1 text-[12px] text-white/70">
             <span className="max-w-[600px]">
               2026 © Inzhur. Ліцензія на здійснення діяльності з управління активами видана Рішенням НКЦПФР №508 від 15.07.2021

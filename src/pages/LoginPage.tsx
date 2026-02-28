@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate, Navigate } from "react-router-dom";
+import { useNavigate, Navigate, Link } from "react-router-dom";
 import "./index.css";
 import { useAuth } from "../context/AuthContext";
 
@@ -74,9 +74,12 @@ const PHONE_PLACEHOLDERS: Record<string, string> = {
 };
 const DEFAULT_PLACEHOLDER = "123 456 7890";
 
-export default function LoginPage() {
+type LoginPageProps = { variant?: 'login' | 'register' };
+
+export default function LoginPage({ variant = 'login' }: LoginPageProps) {
   const navigate = useNavigate();
   const { isLoggedIn, login } = useAuth();
+  const isRegister = variant === 'register';
   const [step, setStep] = useState<1 | 2>(1);
   const [countryCode, setCountryCode] = useState("+1");
   const [phone, setPhone] = useState("");
@@ -114,7 +117,7 @@ export default function LoginPage() {
         {/* Плашка 1: форма входу (login-step1 або login-step2); хедер тільки з Layout */}
         <section className={`${plashkaClass} max-w-[640px] mx-auto mb-8 md:mb-12`}>
           <h1 className="text-[22px] md:text-[28px] font-normal leading-tight text-[#10171f] mb-6 font-e-ukraine-head text-left">
-            Увійдіть до свого кабінету інвестора
+            {isRegister ? 'Введіть номер телефону для реєстрації' : 'Увійдіть до свого кабінету інвестора'}
           </h1>
 
           <form onSubmit={handleSubmit} className="text-left">
@@ -216,21 +219,40 @@ export default function LoginPage() {
           </form>
         </section>
 
-        {/* Секція «Ще немає реєстрації?» — на фоні сторінки, без білої плашки; відступи як на головній */}
+        {/* Секція «Ще немає реєстрації?» / «Вже є обліковий запис?» */}
         <section className="max-w-[640px] mx-auto mb-10 md:mb-14">
           <div className={MOB_TEXT_INDENT}>
-            <h2 className="text-[18px] md:text-[20px] font-normal text-[#10171f] mb-3 font-e-ukraine-head text-left">
-              Ще немає реєстрації?
-            </h2>
-            <p className="text-[13px] text-[#10171f]/80 mb-6">
-              Зареєструйся, щоб відкрити рахунок і отримати доступ до всіх функцій — <span className="inline-block w-4 h-4 text-[#429243]">✓</span> онлайн за 15 хвилин.
-            </p>
-            <button
-              type="button"
-              className="w-full bg-[#10171f] text-white py-4 rounded-[12px] text-[13px] font-normal hover:opacity-90 mb-8"
-            >
-              Зареєструватися та відкрити рахунок
-            </button>
+            {isRegister ? (
+              <>
+                <h2 className="text-[18px] md:text-[20px] font-normal text-[#10171f] mb-3 font-e-ukraine-head text-left">
+                  Вже є обліковий запис?
+                </h2>
+                <p className="text-[13px] text-[#10171f]/80 mb-6">
+                  Увійдіть до свого кабінету інвестора.
+                </p>
+                <Link
+                  to="/account"
+                  className="w-full inline-flex justify-center bg-[#10171f] text-white py-4 rounded-[12px] text-[13px] font-normal hover:opacity-90 mb-8"
+                >
+                  Увійти
+                </Link>
+              </>
+            ) : (
+              <>
+                <h2 className="text-[18px] md:text-[20px] font-normal text-[#10171f] mb-3 font-e-ukraine-head text-left">
+                  Ще немає реєстрації?
+                </h2>
+                <p className="text-[13px] text-[#10171f]/80 mb-6">
+                  Зареєструйся, щоб відкрити рахунок і отримати доступ до всіх функцій — <span className="inline-block w-4 h-4 text-[#429243]">✓</span> онлайн за 15 хвилин.
+                </p>
+                <Link
+                  to="/reg"
+                  className="w-full inline-flex justify-center bg-[#10171f] text-white py-4 rounded-[12px] text-[13px] font-normal hover:opacity-90 mb-8"
+                >
+                  Зареєструватися та відкрити рахунок
+                </Link>
+              </>
+            )}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="bg-white/80 rounded-[16px] p-4 text-[11px] text-[#134169] border border-[rgba(16,23,31,0.06)]">
               Безкоштовне відкриття та обслуговування рахунку

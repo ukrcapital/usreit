@@ -32,6 +32,7 @@ export default function App() {
             <Route index element={<HomePage />} />
             <Route path="login" element={<LoginPage />} />
             <Route path="account" element={<LoginPage />} />
+            <Route path="reg" element={<LoginPage variant="register" />} />
             <Route path="handbook" element={<HandbookReitInzurPage />} />
             <Route path="contacts" element={<ContactPagePage />} />
             <Route path="referral" element={<ReferralDescriptionPage />} />
